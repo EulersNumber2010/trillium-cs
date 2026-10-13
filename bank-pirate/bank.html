@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bank</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f2f2f7; --surface:#ffffff; --surface2:#e9e9ef; --ink:#000000; --ink2:#5d5d64; --line:#c2c2c7;
+  --fill:#000000; --onfill:#ffffff; --risk:#7a1f0d; --tray:#1c1c1c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#000000; --surface:#1c1c1e; --surface2:#2c2c2e; --ink:#ffffff; --ink2:#a6a6ae; --line:#4a4a4d;
+    --fill:#ffffff; --onfill:#000000; --risk:#f08f7a; --tray:#1c1c1c;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#000000; --surface:#1c1c1e; --surface2:#2c2c2e; --ink:#ffffff; --ink2:#a6a6ae; --line:#4a4a4d;
+  --fill:#ffffff; --onfill:#000000; --risk:#f08f7a; --tray:#1c1c1c;
+}
+body{margin:0;background:var(--bg);color:var(--ink)}
+#bank-app{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);overflow-x:hidden;
+  font:16px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Helvetica Neue",Arial,sans-serif;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+#bank-app *,#bank-app *::before,#bank-app *::after{box-sizing:border-box}
+#bank-app button{font:inherit;color:inherit;margin:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#bank-app button:disabled{cursor:default}
+#bank-app input{font:inherit;color:inherit;margin:0}
+#bank-app h1,#bank-app h2,#bank-app p{margin:0}
+#bank-app :focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+#bank-app .big{font-weight:800;font-stretch:condensed;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+#bank-app .lab{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink2)}
+#bank-app .sub{font-size:13px;color:var(--ink2)}
+#bank-app .row{display:flex;align-items:center;gap:8px}
+#bank-app .between{justify-content:space-between}
+#bank-app .grow{flex:1 1 0;min-width:0}
+#bank-app .nowrap{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bank-app .card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+#bank-app svg.die{flex:none;display:block}
+
+/* buttons */
+#bank-app .ob{min-height:44px;min-width:44px;padding:0 12px;font-size:16px;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+#bank-app .ob.filled{background:var(--fill);color:var(--onfill);border-color:var(--fill)}
+#bank-app .ob.danger{color:var(--risk)}
+#bank-app .ob.x{font-size:22px;font-weight:600;padding:0}
+#bank-app .ob:active:not(:disabled),#bank-app .sb:active:not(:disabled){opacity:.6}
+#bank-app .ob:disabled,#bank-app .pb:disabled,#bank-app .sb:disabled{opacity:.4}
+#bank-app .pb{width:100%;min-height:60px;padding:0 14px;font-size:26px;font-weight:800;font-stretch:condensed;text-transform:uppercase;letter-spacing:1px;background:var(--fill);color:var(--onfill);border:0;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px}
+#bank-app .pb:active:not(:disabled){opacity:.7}
+#bank-app .sb{width:100%;min-height:52px;padding:0 14px;font-size:17px;font-weight:700;background:var(--surface);border:2px solid var(--ink);border-radius:12px}
+#bank-app .tb{width:100%;min-height:48px;background:none;border:0;font-size:16px;font-weight:700;color:var(--ink2);border-radius:10px}
+#bank-app .seg{display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:transparent}
+#bank-app .seg button{flex:1 1 0;min-width:0;min-height:44px;padding:0 6px;font-size:15px;font-weight:700;background:transparent;border:0;border-left:1px solid var(--line);white-space:nowrap}
+#bank-app .seg button:first-child{border-left:0}
+#bank-app .seg button[aria-pressed="true"]{background:var(--fill);color:var(--onfill)}
+#bank-app .seg button:focus-visible{outline-offset:-4px}
+#bank-app .seg button[aria-pressed="true"]:focus-visible{outline-color:var(--onfill)}
+#bank-app .stepper{display:flex;align-items:center;gap:6px;flex:none}
+#bank-app .stepper .val{min-width:44px;text-align:center;font-size:28px}
+#bank-app .stepper .ob{width:44px;padding:0;font-size:22px}
+#bank-app .switch{flex:none;width:60px;height:44px;padding:6px 4px;background:none;border:0;border-radius:22px}
+#bank-app .switch span{display:block;width:52px;height:32px;border-radius:16px;background:var(--surface2);border:2px solid var(--ink2);position:relative}
+#bank-app .switch span::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--ink2);transition:transform .12s}
+#bank-app .switch[aria-checked="true"] span{background:var(--fill);border-color:var(--fill)}
+#bank-app .switch[aria-checked="true"] span::after{background:var(--onfill);transform:translateX(20px)}
+#bank-app .field{width:100%;min-width:0;min-height:48px;padding:0 12px;font-size:17px;font-weight:600;background:var(--surface);border:1px solid var(--line);border-radius:11px}
+#bank-app .field::placeholder{color:var(--ink2);opacity:.75;font-weight:500}
+
+/* setup + end */
+#bank-app .screen{max-width:720px;margin:0 auto;padding:8px 16px 28px;display:flex;flex-direction:column;gap:22px}
+#bank-app .title{font-size:64px;line-height:1;font-weight:900;font-stretch:condensed;text-transform:uppercase;letter-spacing:-.01em}
+#bank-app .sec{display:flex;flex-direction:column;gap:10px}
+#bank-app .namerow{display:flex;align-items:center;gap:8px}
+#bank-app .namerow .num{width:22px;text-align:right;font-size:16px;color:var(--ink2);flex:none}
+#bank-app .flow{display:flex;flex-wrap:wrap;gap:6px}
+#bank-app .recent{min-height:44px;padding:0 12px;font-size:14px;font-weight:600;background:none;border:1px dashed var(--ink2);border-radius:22px}
+#bank-app .disc{padding:0 14px}
+#bank-app .disc>button{width:100%;min-height:48px;background:none;border:0;padding:0;display:flex;align-items:center;justify-content:space-between}
+#bank-app .rrow{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+#bank-app .rrow:first-child{border-top:0}
+#bank-app .rrow .t{font-size:15px;font-weight:700}
+#bank-app .winner{font-size:80px;line-height:.95;font-weight:900;font-stretch:condensed;text-transform:uppercase;overflow-wrap:anywhere}
+#bank-app .srow{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+#bank-app .srow.first{background:var(--fill);color:var(--onfill);border-color:var(--fill)}
+#bank-app .srow.sm{min-height:44px;padding:0 12px;border-radius:10px}
+#bank-app .srow.lost{background:none;border-style:dashed;border-color:var(--ink2);color:var(--ink2)}
+
+/* game: three bands */
+#bank-app .game{height:100vh;height:100dvh;min-height:560px;max-width:720px;margin:0 auto;padding:6px 16px 8px;display:flex;flex-direction:column;gap:10px}
+#bank-app .game.virtual{min-height:650px}
+#bank-app .top{display:flex;align-items:center;gap:8px;flex:none}
+#bank-app .top .mid{flex:1 1 0;min-width:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bank-app .top .rt{font-size:22px;text-transform:uppercase}
+#bank-app .top .of{font-size:13px;font-weight:600;color:var(--ink2)}
+#bank-app .pot{flex:none;padding:8px 14px 10px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+#bank-app .pot.risk{border:2.5px solid var(--ink);padding:6.5px 12.5px 8.5px}
+#bank-app .dots{display:inline-flex;gap:4px}
+#bank-app .dots i{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink)}
+#bank-app .dots i.on{background:var(--ink)}
+#bank-app .badge{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--fill);color:var(--onfill)}
+#bank-app .rollerbtn{min-height:44px;max-width:55%;padding:0 10px;font-size:14px;font-weight:600;background:none;border:1px dashed var(--ink2);border-radius:9px;display:inline-flex;align-items:center;gap:6px;min-width:0}
+#bank-app .potnum{font-size:128px;line-height:1;font-weight:900;font-stretch:condensed;letter-spacing:-.02em;font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap;overflow:hidden;min-height:100px;display:flex;align-items:center;justify-content:center}
+#bank-app .potnum.m{font-size:100px;min-height:76px}
+#bank-app .potnum.s{font-size:80px;min-height:60px}
+#bank-app .potnum.bump{animation:bank-bump .25s ease-out}
+@keyframes bank-bump{from{transform:scale(1.08)}to{transform:scale(1)}}
+#bank-app .bkfloat{position:fixed;z-index:60;pointer-events:none;font-weight:900;font-size:34px;font-variant-numeric:tabular-nums;color:var(--bkfx,#1f9d55);text-shadow:0 2px 0 rgba(0,0,0,.18);animation:bank-float 1.1s cubic-bezier(.2,.8,.3,1) forwards;white-space:nowrap}
+#bank-app .bkfloat.big{font-size:54px}
+@keyframes bank-float{0%{transform:translate(-50%,0) scale(.6);opacity:0}15%{transform:translate(-50%,-14px) scale(1.15);opacity:1}100%{transform:translate(-50%,-90px) scale(1);opacity:0}}
+#bank-app.bkshake{overflow-x:clip}
+#bank-app.bkshake>#bank-screen{animation:bank-shake .5s cubic-bezier(.36,.07,.19,.97)}
+@keyframes bank-shake{10%,90%{transform:translate(calc(var(--shk,1)*-3px),0)}20%,80%{transform:translate(calc(var(--shk,1)*6px),calc(var(--shk,1)*-2px))}30%,50%,70%{transform:translate(calc(var(--shk,1)*-10px),calc(var(--shk,1)*2px))}40%,60%{transform:translate(calc(var(--shk,1)*10px),0)}}
+#bank-app .bkflash{position:fixed;inset:0;z-index:55;pointer-events:none;animation:bank-flash .6s ease-out forwards}
+@keyframes bank-flash{from{opacity:.45}to{opacity:0}}
+#bank-app .bkpop{animation:bank-pop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes bank-pop{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
+#bank-app .potnum.heat{overflow:visible}
+#bank-app .potnum.heat span{display:inline-block;background:linear-gradient(180deg,#ffe066 0%,#ff9f1c 45%,#ff3d3d 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 6px rgba(255,140,0,.55));animation:bank-wob 1.6s ease-in-out infinite}
+#bank-app .potnum.h2 span{filter:drop-shadow(0 0 10px rgba(255,110,0,.75)) drop-shadow(0 -4px 8px rgba(255,60,0,.45));animation:bank-wob 1.1s ease-in-out infinite,bank-flick .22s steps(2) infinite}
+#bank-app .potnum.h3 span{background:linear-gradient(180deg,#fff3a0 0%,#ff7b00 40%,#ff1e56 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 14px rgba(255,80,0,.9)) drop-shadow(0 -6px 12px rgba(255,30,60,.6));animation:bank-wob2 .7s ease-in-out infinite,bank-flick .16s steps(2) infinite}
+#bank-app .potnum.h4 span{background:linear-gradient(180deg,#ffffff 0%,#7df9ff 30%,#b06bff 65%,#ff2e88 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 18px rgba(160,90,255,.95)) drop-shadow(0 -8px 16px rgba(255,46,136,.7));animation:bank-wob2 .45s ease-in-out infinite,bank-flick .11s steps(2) infinite}
+@keyframes bank-wob{0%,100%{transform:rotate(-1deg) scale(1)}50%{transform:rotate(1deg) scale(1.02)}}
+@keyframes bank-wob2{0%,100%{transform:rotate(-2.2deg) scale(1) translateY(0)}25%{transform:rotate(1.4deg) scale(1.04) translateY(-2px)}50%{transform:rotate(2.2deg) scale(1.01) translateY(1px)}75%{transform:rotate(-1.2deg) scale(1.05) translateY(-1px)}}
+@keyframes bank-flick{0%{opacity:1}100%{opacity:.9}}
+#bank-app .potnum.bkslam{animation:bank-slam var(--slamd,.5s) cubic-bezier(.2,1.7,.3,1)}
+@keyframes bank-slam{0%{transform:scale(var(--slam,1.3)) rotate(-4deg)}35%{transform:scale(calc(var(--slam,1.3) * .92)) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+#bank-app .bkfloat.huge{font-size:84px}
+#bank-app .bkconf{position:fixed;top:0;width:10px;height:15px;border-radius:2px;z-index:70;pointer-events:none}
+#bank-app .potfoot{font-size:13px;font-weight:600;color:var(--ink2);display:flex;justify-content:space-between;gap:8px;white-space:nowrap}
+#bank-app .potfoot .rk{color:var(--ink);font-weight:700}
+#bank-app .chips{flex:1 1 0;min-height:60px;overflow-y:auto;overscroll-behavior:contain}
+#bank-app .chipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;padding:3px}
+#bank-app .chip{min-height:66px;padding:8px 10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
+#bank-app .compact .chip{min-height:50px;padding:4px 10px;gap:0}
+#bank-app .chip.leader{border:2.5px solid var(--ink);padding:6.5px 8.5px}
+#bank-app .compact .chip.leader{padding:2.5px 8.5px}
+#bank-app .chip.banked{background:var(--fill);color:var(--onfill);border-color:var(--fill)}
+#bank-app .chip.banked:focus-visible{outline-offset:3px}
+#bank-app .chip:disabled{opacity:.55}
+#bank-app .chip:active:not(:disabled){transform:scale(.98)}
+#bank-app .chip .l1{display:flex;align-items:baseline;gap:6px;min-width:0}
+#bank-app .chip .rank{width:26px;flex:none;font-size:13px;opacity:.75}
+#bank-app .chip .nm{flex:1 1 0;min-width:0;font-size:16px;font-weight:700;display:flex;align-items:center;gap:5px}
+#bank-app .chip .sc{font-size:26px;line-height:1}
+#bank-app .compact .chip .sc{font-size:22px}
+#bank-app .chip .l2{padding-left:32px;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:16px}
+#bank-app .chip .dim{color:var(--ink2)}
+#bank-app .chip .bk{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:1px 5px;border-radius:5px;background:var(--onfill);color:var(--fill);margin-right:4px}
+#bank-app .pad{flex:none;display:flex;flex-direction:column;gap:8px;min-width:0}
+#bank-app .status{flex:1 1 0;min-width:0;font-size:14px;font-weight:600;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bank-app .keys{display:flex;flex-direction:column;gap:8px}
+#bank-app .krow{display:flex;gap:7px}
+#bank-app .key{flex:1 1 0;min-width:0;min-height:54px;padding:0 4px;font-size:28px;font-weight:800;font-stretch:condensed;font-variant-numeric:tabular-nums;background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+#bank-app .key.wide{min-height:50px;font-size:26px}
+#bank-app .key.strong{border:2.5px solid var(--ink)}
+#bank-app .key.filled{background:var(--fill);color:var(--onfill);border-color:var(--fill)}
+#bank-app .key.alt{background:var(--surface2);font-size:22px;text-transform:uppercase}
+#bank-app .key .kl{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;font-stretch:normal;color:var(--ink2)}
+#bank-app .key.filled .kl{color:var(--onfill)}
+#bank-app .key:active:not(:disabled){transform:scale(.96);opacity:.75}
+#bank-app .key:disabled{opacity:.5}
+#bank-app .hint{display:none;font-size:12px;color:var(--ink2);text-align:center}
+#bank-app .tray{position:relative;height:220px;border-radius:16px;background:var(--tray);border:1px solid var(--line);overflow:hidden;cursor:pointer}
+#bank-app .dw{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-54px 0 0 -42px;perspective:520px;will-change:transform}
+#bank-app .cube{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform}
+#bank-app .face{position:absolute;inset:0;border-radius:13px;background:#f7f7f7;box-shadow:inset 0 0 0 2px #d0d0d0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+#bank-app .face svg{width:100%;height:100%;display:block}
+#bank-app .pill{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);padding:4px 12px;border-radius:14px;background:rgba(0,0,0,.55);color:#f2f2f2;font-size:15px;font-weight:700;white-space:nowrap}
+#bank-app .cap{display:flex;justify-content:space-between;gap:8px;padding:0 2px;font-size:11.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink2);white-space:nowrap}
+
+/* sheets */
+#bank-app .overlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+#bank-app .sheet{width:100%;max-width:640px;max-height:92vh;max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--bg);border-radius:18px 18px 0 0;padding:0 16px 20px;display:flex;flex-direction:column;gap:12px;outline:none;box-shadow:0 0 0 1px var(--line)}
+#bank-app .sheet.wide{max-width:860px}
+#bank-app .shead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:14px}
+#bank-app .shead h2{font-size:24px;font-weight:800;font-stretch:condensed;text-transform:uppercase;letter-spacing:.5px;min-width:0;overflow-wrap:anywhere}
+#bank-app .mitem{width:100%;min-height:54px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+#bank-app .mitem b{font-size:17px}
+#bank-app .mitem.danger b{color:var(--risk)}
+#bank-app .mitem span{font-size:14px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bank-app .prow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
+#bank-app .prow:first-child{border-top:0}
+#bank-app .prow .pn{flex:1 1 170px;min-width:0;display:flex;flex-direction:column;gap:3px}
+#bank-app .prow .pn .field{min-height:44px;font-size:16px;font-weight:700}
+#bank-app .prow .pb2{display:flex;gap:6px;flex:none}
+#bank-app .lrow{width:100%;min-height:48px;padding:0 8px;display:flex;align-items:center;gap:10px;text-align:left;background:none;border:0;border-radius:10px}
+#bank-app .lrow.sel{background:var(--surface2)}
+#bank-app .lrow .rn{width:36px;flex:none;font-size:15px;color:var(--ink2)}
+#bank-app .lrow .ds{flex:1 1 0;min-width:0;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bank-app .lrow .pv{font-size:22px}
+#bank-app .lwrap{border-top:1px solid var(--line)}
+#bank-app .lwrap:first-child{border-top:0}
+#bank-app .editor{display:flex;flex-direction:column;gap:8px;padding:10px 4px}
+#bank-app .editor .key{min-height:44px;font-size:22px}
+#bank-app .tablewrap{overflow-x:auto;padding:10px 12px}
+#bank-app table.hist{border-collapse:collapse;min-width:100%}
+#bank-app table.hist th,#bank-app table.hist td{text-align:right;padding:5px 7px;white-space:nowrap;vertical-align:top}
+#bank-app table.hist th:first-child,#bank-app table.hist td:first-child{text-align:left;padding-left:0}
+#bank-app table.hist thead th{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);max-width:110px;overflow:hidden;text-overflow:ellipsis}
+#bank-app table.hist tbody tr,#bank-app table.hist tfoot tr{border-top:1px solid var(--line)}
+#bank-app table.hist .a{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+#bank-app table.hist .n{color:var(--ink2)}
+#bank-app table.hist .rt{font-size:11px;color:var(--ink2);font-variant-numeric:tabular-nums}
+#bank-app .reh{font-size:56px;line-height:1;font-weight:900;font-stretch:condensed;text-transform:uppercase;text-align:center}
+#bank-app .reh.bust{color:var(--risk)}
+#bank-app .center{text-align:center}
+
+@media (max-width:520px){
+  #bank-app .chip .l2{padding-left:0}
+}
+@media (max-width:420px){
+  #bank-app .winner{font-size:60px}
+  #bank-app .potnum{font-size:112px}
+}
+@media (min-width:900px){
+  #bank-app .game,#bank-app .game.virtual{max-width:1400px;min-height:500px;padding:8px 20px 12px;display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(380px,36%);grid-template-rows:auto auto minmax(0,1fr);
+    grid-template-areas:"top top" "pot pad" "chips pad";gap:10px 18px}
+  #bank-app .top{grid-area:top}
+  #bank-app .pot{grid-area:pot}
+  #bank-app .chips{grid-area:chips}
+  #bank-app .pad{grid-area:pad;min-height:0}
+  #bank-app .potnum,#bank-app .potnum.m,#bank-app .potnum.s{font-size:clamp(96px,21vh,176px);min-height:clamp(96px,21vh,176px)}
+  #bank-app .chipgrid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  #bank-app .chip{min-height:78px;padding:10px 14px}
+  #bank-app .chip.leader{padding:8.5px 12.5px}
+  #bank-app .compact .chip{min-height:64px;padding:6px 14px}
+  #bank-app .compact .chip.leader{padding:4.5px 12.5px}
+  #bank-app .chip .rank{width:32px;font-size:15px}
+  #bank-app .chip .nm{font-size:19px}
+  #bank-app .chip .sc,#bank-app .compact .chip .sc{font-size:32px}
+  #bank-app .chip .l2{padding-left:38px;font-size:14.5px;min-height:19px}
+  #bank-app .chip .bk{font-size:11.5px}
+  #bank-app .keys{flex:1 1 0;min-height:0;max-height:560px}
+  #bank-app .keys .krow{flex:1.1 1 0}
+  #bank-app .keys>.key{flex:1 1 0}
+  #bank-app .key{font-size:34px}
+  #bank-app .key.wide{font-size:30px}
+  #bank-app .tray{flex:1 1 0;height:auto;min-height:200px;max-height:420px}
+  #bank-app .status{font-size:15px}
+  #bank-app .overlay{align-items:center;padding:16px}
+  #bank-app .sheet{border-radius:18px;max-height:calc(100vh - 32px)}
+}
+@media (min-width:900px) and (hover:hover){
+  #bank-app .hint{display:block}
+}
+@media (prefers-reduced-motion:reduce){
+  #bank-app.bkshake>#bank-screen,#bank-app .bkpop,#bank-app .potnum.heat span,#bank-app .potnum.bkslam{animation:none}
+  #bank-app .potnum.bump{animation:none}
+  #bank-app .switch span::after{transition:none}
+}
+</style>
+</head>
+<body>
+<div id="bank-app"><div id="bank-screen"></div><div id="bank-sheet"></div></div>
+<script>
+/* BANKCORE:BEGIN */
+// The rules of Bank as pure, replayable logic (a port of ios/BankCore/BankCore.swift).
+// A game is a roster plus an append-only log of events. Pot, round, who is still in, scores and the roller
+// are all derived by replaying the log, so undo is "drop the last event" and an edit is "change it and replay".
+var BankCore = (function () {
+  'use strict';
+  function uuid() {
+    var c = (typeof globalThis !== 'undefined' && globalThis.crypto) || null;
+    if (c && c.randomUUID) { try { return c.randomUUID(); } catch (e) {} }
+    var b = new Uint8Array(16), i;
+    if (c && c.getRandomValues) c.getRandomValues(b); else for (i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256);
+    b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
+    var s = ''; for (i = 0; i < 16; i++) { s += (b[i] + 256).toString(16).slice(1); if (i === 3 || i === 5 || i === 7 || i === 9) s += '-'; }
+    return s;
+  }
+  // safeRolls: rolls at the start of a round during which a 7 does not bust.
+  // sevenPays70: in the safe rolls a 7 adds 70 (true) or just 7.
+  // safeDoublesDouble: in the safe rolls doubles double the pot (true) or add their face value (false).
+  function Rules(o) { o = o || {}; return {
+    safeRolls: o.safeRolls === undefined ? 3 : o.safeRolls,
+    sevenPays70: o.sevenPays70 === undefined ? true : !!o.sevenPays70,
+    safeDoublesDouble: !!o.safeDoublesDouble }; }
+  function Player(name, o) { o = o || {}; return { id: o.id || uuid(), name: name, late: !!o.late, removed: !!o.removed }; }
+  var Event = {
+    roll: function (sum, doubles, roller) { return { t: 'roll', sum: sum, doubles: !!doubles, roller: roller === undefined ? null : roller }; },
+    bank: function (p) { return { t: 'bank', p: p }; },
+    join: function (p, score) { return { t: 'join', p: p, score: score }; },
+    leave: function (p) { return { t: 'leave', p: p }; },
+    rejoin: function (p) { return { t: 'rejoin', p: p }; },
+    roller: function (p) { return { t: 'roller', p: p }; }
+  };
+  function Game(players, rounds, rules, virtualDice) {
+    return { id: uuid(), players: players, rounds: rounds, rules: Rules(rules), virtualDice: !!virtualDice,
+             log: [], redo: [], finished: false, started: Date.now() };
+  }
+  // One roll applied to a pot. rollNumber is 1-based within the round.
+  function applyRoll(pot, rollNumber, sum, doubles, rules) {
+    if (rollNumber <= rules.safeRolls) {
+      if (sum === 7) return { pot: pot + (rules.sevenPays70 ? 70 : 7), bust: false };
+      if (doubles && rules.safeDoublesDouble) return { pot: pot === 0 ? sum : pot * 2, bust: false };
+      return { pot: pot + sum, bust: false };
+    }
+    if (sum === 7) return { pot: 0, bust: true };
+    if (doubles) return { pot: pot * 2, bust: false };
+    return { pot: pot + sum, bust: false };
+  }
+  function replay(g) {
+    var d = { round: 1, roll: 0, pot: 0, active: new Set(), banked: {}, bankedAt: {}, scores: {}, roller: null,
+              results: [], over: false, lastRoll: null, eventRounds: [] };
+    g.players.forEach(function (p) { d.scores[p.id] = 0; if (!p.late && !p.removed) d.active.add(p.id); });
+    function has(m, k) { return Object.prototype.hasOwnProperty.call(m, k); }
+    function order() { return g.players.filter(function (p) { return d.active.has(p.id) && !p.removed; }).map(function (p) { return p.id; }); }
+    // The next player in roster order who still rolls: anyone who has banked this round is skipped.
+    function next(id) {
+      var o = order(); if (!o.length) return null;
+      var start = id == null ? -1 : o.indexOf(id);
+      for (var k = 1; k <= o.length; k++) { var p = o[(start + k) % o.length]; if (!has(d.banked, p)) return p; }
+      return o[(start + 1) % o.length];
+    }
+    var first = order(); d.roller = first.length ? first[0] : null;
+    var lastRoller = null;
+    function endRound(how) {
+      d.results.push({ round: d.round, how: how, pot: d.pot, banks: Object.assign({}, d.banked),
+                       lost: order().filter(function (p) { return !has(d.banked, p); }), rolls: d.roll });
+      d.round += 1; d.roll = 0; d.pot = 0; d.banked = {}; d.bankedAt = {}; d.lastRoll = null;
+      if (d.round > g.rounds) d.over = true;
+      d.roller = next(lastRoller);            // a new round: everyone rolls again, carrying on round the table
+    }
+    function checkAllBanked() {
+      var o = order();
+      if (o.length && d.roll > 0 && o.every(function (p) { return has(d.banked, p); })) endRound('allBanked');
+    }
+    g.log.forEach(function (e) {
+      d.eventRounds.push(d.round);
+      if (d.over) return;
+      var p = e.p, o;
+      switch (e.t) {
+        case 'roll':
+          d.roll += 1;
+          var r = applyRoll(d.pot, d.roll, e.sum, e.doubles, g.rules);
+          d.pot = r.pot;
+          d.lastRoll = { sum: e.sum, doubles: e.doubles, number: d.roll, roller: e.roller };
+          var from = (e.roller != null && d.active.has(e.roller)) ? e.roller : d.roller;
+          lastRoller = from;
+          d.roller = next(from);
+          if (r.bust) endRound('bust'); else checkAllBanked();
+          break;
+        case 'bank':
+          if (d.active.has(p) && !has(d.banked, p) && d.roll > 0) {
+            d.banked[p] = d.pot; d.bankedAt[p] = d.roll;
+            d.scores[p] = (d.scores[p] || 0) + d.pot;
+            if (d.roller === p) d.roller = next(p);       // banked players are out of the dice rotation
+            checkAllBanked();
+          }
+          break;
+        case 'join':
+          d.active.add(p); d.scores[p] = e.score;
+          if (d.roller == null) d.roller = p;
+          break;
+        case 'leave':
+          var nr = d.roller === p ? next(p) : d.roller;
+          d.active.delete(p);
+          if (nr != null && d.active.has(nr)) d.roller = nr; else { o = order(); d.roller = o.length ? o[0] : null; }
+          checkAllBanked();
+          break;
+        case 'rejoin':
+          d.active.add(p);
+          if (d.roller == null) d.roller = p;
+          break;
+        case 'roller':
+          if (d.active.has(p) && !has(d.banked, p)) d.roller = p;
+          break;
+      }
+    });
+    if (!d.over && d.roller != null && !d.active.has(d.roller)) { var o2 = order(); d.roller = o2.length ? o2[0] : null; }
+    return d;
+  }
+  // Everyone still in the game (not removed), best first; ties share a rank (1st, 1st, 3rd).
+  function standings(g, d) {
+    var arr = g.players.filter(function (p) { return !p.removed; }).map(function (p) {
+      return { id: p.id, name: p.name, score: d.scores[p.id] || 0, rank: 0, active: d.active.has(p.id) }; });
+    arr.sort(function (a, b) { return b.score - a.score; });
+    var rank = 0;
+    arr.forEach(function (s, i) { if (i === 0 || s.score < arr[i - 1].score) rank = i + 1; s.rank = rank; });
+    return arr;
+  }
+  // What banking the current pot would do for pid, against everyone else's score as it stands.
+  function previewBank(g, d, pid) {
+    var others = standings(g, d).filter(function (s) { return s.id !== pid; }).map(function (s) { return s.score; });
+    var ns = (d.scores[pid] || 0) + d.pot;
+    var rank = others.filter(function (s) { return s > ns; }).length + 1;
+    var best = others.length ? Math.max.apply(null, others) : null;
+    return { rank: rank, delta: best === null ? 0 : ns - best, newScore: ns, alone: others.length === 0 };
+  }
+  function ordinal(n) {
+    var m100 = n % 100, m10 = n % 10;
+    if (m100 >= 11 && m100 <= 13) return n + 'th';
+    return n + (m10 === 1 ? 'st' : m10 === 2 ? 'nd' : m10 === 3 ? 'rd' : 'th');
+  }
+  // Fair, cryptographically random die face 1...6 (rejection sampling, so no modulo bias).
+  function rollDie() {
+    var b = new Uint8Array(1);
+    for (;;) { globalThis.crypto.getRandomValues(b); if (b[0] < 252) return (b[0] % 6) + 1; }
+  }
+  return { uuid: uuid, Rules: Rules, Player: Player, Event: Event, Game: Game, applyRoll: applyRoll, replay: replay,
+           standings: standings, previewBank: previewBank, ordinal: ordinal, rollDie: rollDie };
+})();
+/* BANKCORE:END */
+
+(function () {
+  'use strict';
+  var C = BankCore, E = C.Event, ord = C.ordinal;
+  var app = document.getElementById('bank-app'), screenEl = document.getElementById('bank-screen'), sheetEl = document.getElementById('bank-sheet');
+  var root = document.documentElement, hostTheme = root.getAttribute('data-theme');
+  var GAME_KEY = 'bank.game.v1', PREFS_KEY = 'bank.prefs.v1';
+  var MINUS = '\u2212';
+
+  // ---------- storage (the page must work without it) ----------
+  function load(k) { try { var v = window.localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function save(k, v) { try { if (v == null) window.localStorage.removeItem(k); else window.localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  // ---------- state ----------
+  var S = {
+    game: null, d: C.replay(C.Game([], 1)), screen: 'setup',
+    prefs: { recentNames: [], rounds: 15, rules: C.Rules(), virtualDice: false, theme: 'system', sound: true },
+    setup: { names: ['', ''], rounds: 15, rules: C.Rules(), virtualDice: false },
+    pending: null,       // a round just ended: the round-end sheet shows this result
+    sheet: null,         // { kind, pid }
+    sel: null, removing: null, newName: '', newScore: '', showRules: false,
+    dice: null, rolling: false, anim: null, ang: [[0, 90], [0, -90]], flip: false,
+    lastEntry: 0, roundShown: 0, lastPot: null, lastSheetKey: ''
+  };
+  var FACE = { 1: [0, 0], 2: [0, -90], 3: [-90, 0], 4: [90, 0], 5: [0, 90], 6: [0, 180] };
+
+  function savePrefs() { save(PREFS_KEY, S.prefs); }
+  function saveGame() { save(GAME_KEY, S.game); }
+  function lastResult() { var r = S.d.results; return r.length ? r[r.length - 1] : null; }
+
+  (function init() {
+    var p = load(PREFS_KEY);
+    if (p && typeof p === 'object') {
+      if (Array.isArray(p.recentNames)) S.prefs.recentNames = p.recentNames.filter(function (n) { return typeof n === 'string'; }).slice(0, 16);
+      if (p.rounds >= 1 && p.rounds <= 99) S.prefs.rounds = Math.floor(p.rounds);
+      if (p.rules) S.prefs.rules = C.Rules(p.rules);
+      S.prefs.virtualDice = !!p.virtualDice;
+      if (p.sound === false) S.prefs.sound = false;
+      if (p.theme === 'light' || p.theme === 'dark') S.prefs.theme = p.theme;
+    }
+    var g = load(GAME_KEY);
+    try {
+      if (g && Array.isArray(g.players) && Array.isArray(g.log) && g.rounds >= 1) {
+        g.rules = C.Rules(g.rules); if (!Array.isArray(g.redo)) g.redo = [];
+        S.d = C.replay(g); S.game = g; S.screen = g.finished ? 'end' : 'game';
+        S.roundShown = lastResult() ? lastResult().round : 0;
+        if (S.d.over && !g.finished) S.pending = lastResult();
+      }
+    } catch (e) { S.game = null; S.d = C.replay(C.Game([], 1)); S.screen = 'setup'; }
+    newSetup(null);
+  })();
+
+  // ---------- setup ----------
+  function newSetup(old) {
+    var names = old ? old.players.filter(function (p) { return !p.removed; }).map(function (p) { return p.name; }) : S.prefs.recentNames.slice(0, 4);
+    while (names.length < 2) names.push('');
+    S.setup = { names: names, rounds: old ? old.rounds : S.prefs.rounds, rules: C.Rules(old ? old.rules : S.prefs.rules),
+                virtualDice: old ? old.virtualDice : S.prefs.virtualDice };
+  }
+  function recentNotInSetup() {
+    var used = S.setup.names.map(function (n) { return n.trim().toLowerCase(); });
+    return S.prefs.recentNames.filter(function (n) { return used.indexOf(n.toLowerCase()) < 0; });
+  }
+  function setupNames() { return S.setup.names.map(function (n) { return n.trim(); }).filter(function (n) { return n; }); }
+  function startGame() {
+    var names = setupNames(); if (!names.length) return;
+    var lower = names.map(function (n) { return n.toLowerCase(); });
+    S.prefs.recentNames = names.concat(S.prefs.recentNames.filter(function (n) { return lower.indexOf(n.toLowerCase()) < 0; })).slice(0, 16);
+    S.prefs.rounds = S.setup.rounds; S.prefs.rules = C.Rules(S.setup.rules); S.prefs.virtualDice = S.setup.virtualDice;
+    savePrefs();
+    S.game = C.Game(names.map(function (n) { return C.Player(n); }), S.setup.rounds, S.setup.rules, S.setup.virtualDice);
+    S.d = C.replay(S.game); saveGame();
+    S.roundShown = 0; S.dice = null; S.pending = null; S.sheet = null; S.rolling = false; S.anim = null;
+    S.screen = 'game';
+  }
+
+  // ---------- the loop ----------
+
+  // ---------- sound and feedback ----------
+  // Small synthesised sounds (no audio files) and a few visual pops. All optional: Menu -> Sound.
+  var FX = (function () {
+    var ctx = null;
+    function ac() {
+      if (!S.prefs.sound) return null;
+      try { if (!ctx) { var A = window.AudioContext || window.webkitAudioContext; if (!A) return null; ctx = new A(); } if (ctx.state === 'suspended') ctx.resume(); return ctx; } catch (e) { return null; }
+    }
+    function note(f, t, dur, type, vol, f2) {
+      var c = ac(); if (!c) return;
+      var o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + (t || 0);
+      o.type = type || 'square'; o.frequency.setValueAtTime(f, t0); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.06, t0 + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + dur + 0.03);
+    }
+    function noise(t, dur, vol, freq) {
+      var c = ac(); if (!c) return;
+      var n = Math.floor(c.sampleRate * dur), buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      var src = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter(), t0 = c.currentTime + (t || 0);
+      f.type = 'bandpass'; f.frequency.value = freq || 2400; src.buffer = buf; g.gain.value = vol || 0.05;
+      src.connect(f); f.connect(g); g.connect(c.destination); src.start(t0);
+    }
+    var st = function (n) { return Math.pow(2, n / 12); };
+    var snd = {
+      tick: function (pot) { var up = Math.min(14, Math.floor(Math.log(Math.max(1, pot)) / Math.log(1.6))); note(440 * st(up), 0, 0.09, 'square', 0.045); note(660 * st(up), 0.06, 0.12, 'square', 0.04); },
+      seventy: function () { [0, 4, 7, 12, 16].forEach(function (n, i) { note(523 * st(n), i * 0.07, 0.16, 'square', 0.05); }); noise(0.3, 0.25, 0.03, 6000); },
+      // lv 0..4: each level starts higher, adds a note to the chord, and from 2 up a bass thump and a whoosh
+      dbl: function (lv) {
+        lv = lv || 0; var up = st(lv * 2), end = 0.3;
+        note(220 * up, 0, 0.32, 'sawtooth', 0.045, 880 * up); note(880 * up, 0.3, 0.14, 'square', 0.05);
+        [0, 4, 7, 12, 16].slice(0, 2 + lv).forEach(function (n, i) { note(1175 * up * st(n) / (lv > 2 ? 2 : 1), 0.42 + i * 0.06, 0.26 + lv * 0.05, 'square', 0.045); end = 0.42 + i * 0.06; });
+        if (lv >= 2) { note(110, 0.3, 0.35, 'sine', 0.22, 45); noise(0, 0.3, 0.04 + lv * 0.01, 800 + lv * 600); }
+        if (lv >= 3) { note(55, 0.3, 0.6, 'sine', 0.25, 30); noise(end, 0.5, 0.05, 7000); }
+      },
+      count: function (i, lv) { note(700 * st(i + lv * 2), 0, 0.035, 'square', 0.03); },
+      bank: function () { noise(0, 0.06, 0.05, 5000); note(1319, 0.02, 0.09, 'square', 0.05); note(1976, 0.1, 0.35, 'triangle', 0.08); note(2637, 0.1, 0.3, 'sine', 0.03); },
+      // the sad trombone: wah, wah, wah, waaah
+      bust: function () {
+        var c = ac(); if (!c) return;
+        [[233, 0, 0.34], [220, 0.36, 0.34], [208, 0.72, 0.34], [196, 1.08, 1.1]].forEach(function (n, i) {
+          var o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter(), t0 = c.currentTime + n[1], last = i === 3;
+          o.type = 'sawtooth'; o2.type = 'square'; f.type = 'lowpass'; f.Q.value = 4;
+          [o, o2].forEach(function (x, k) { x.frequency.setValueAtTime(n[0] * (k ? 0.5 : 1) * 1.03, t0); x.frequency.exponentialRampToValueAtTime(n[0] * (k ? 0.5 : 1) * (last ? 0.82 : 0.97), t0 + n[2]); });
+          f.frequency.setValueAtTime(350, t0); f.frequency.linearRampToValueAtTime(1500, t0 + 0.09); f.frequency.linearRampToValueAtTime(last ? 300 : 500, t0 + n[2]);
+          g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.11, t0 + 0.04); g.gain.setValueAtTime(0.11, t0 + n[2] * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[2]);
+          if (last) { var l = c.createOscillator(), lg = c.createGain(); l.frequency.value = 5.5; lg.gain.value = 5; l.connect(lg); lg.connect(o.frequency); l.start(t0); l.stop(t0 + n[2]); }
+          o.connect(f); o2.connect(f); f.connect(g); g.connect(c.destination); o.start(t0); o2.start(t0); o.stop(t0 + n[2] + 0.05); o2.stop(t0 + n[2] + 0.05);
+        });
+      },
+      round: function () { [0, 4, 7].forEach(function (n, i) { note(392 * st(n), i * 0.1, 0.2, 'triangle', 0.07); }); note(784, 0.32, 0.4, 'triangle', 0.07); },
+      win: function () { [0, 0, 0, 4, 7, 4, 7, 12].forEach(function (n, i) { note(523 * st(n), i * 0.13, i === 7 ? 0.7 : 0.14, 'square', 0.05); note(262 * st(n), i * 0.13, i === 7 ? 0.7 : 0.14, 'triangle', 0.05); }); },
+      // a ticker that slows down like a prize wheel, then two soft knocks as the dice land
+      rattle: function (dur) {
+        var scale = [0, 3, 5, 7, 10, 12, 15], n = 11, t = 0;
+        for (var i = 0; i < n; i++) {
+          note(620 * st(scale[Math.floor(Math.random() * scale.length)]), t, 0.045, 'triangle', 0.045);
+          t += (dur * 0.9) * (0.5 + i) / (n * n / 2);          // gaps grow, so the ticks slow down
+        }
+        note(190, dur, 0.09, 'sine', 0.16, 85); note(150, dur + 0.075, 0.1, 'sine', 0.13, 70);
+      },
+      undo: function () { note(520, 0, 0.12, 'triangle', 0.05, 300); },
+      tap: function () { note(900, 0, 0.04, 'square', 0.02); }
+    };
+    function play(k, a) { try { if (snd[k]) snd[k](a); } catch (e) {} }
+    function root() { return document.getElementById('bank-app'); }
+    function float(text, color, big, sel, huge) {
+      window.requestAnimationFrame(function () {
+        var el = document.querySelector(sel || '#pot'), r = root(); if (!el || !r) return;
+        var b = el.getBoundingClientRect(), d = document.createElement('div');
+        d.className = 'bkfloat' + (big ? ' big' : '') + (huge ? ' huge' : ''); d.textContent = text; d.style.setProperty('--bkfx', color);
+        d.style.left = (b.left + b.width / 2) + 'px'; d.style.top = (b.top + b.height * 0.15) + 'px';
+        r.appendChild(d); window.setTimeout(function () { d.remove(); }, 1200);
+        if (!reducedMotion()) { el.classList.remove('bkpop'); void el.offsetWidth; el.classList.add('bkpop'); }
+      });
+    }
+    // the pot counts up to its new value, ticking, then slams: longer and louder the hotter the pot
+    function countUp(from, to, lv) {
+      window.requestAnimationFrame(function () {
+        var el = document.getElementById('pot'), sp = el && el.querySelector('span'); if (!sp) return;
+        if (reducedMotion()) return;
+        var dur = 350 + lv * 220, t0 = performance.now(), lastTick = -1;
+        el.style.setProperty('--slam', 1.18 + lv * 0.14); el.style.setProperty('--slamd', (0.45 + lv * 0.1) + 's');
+        (function step(now) {
+          var u = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - u, 3);
+          if (!sp.isConnected) return;
+          sp.textContent = Math.round(from + (to - from) * e);
+          var tk = Math.floor(u * (6 + lv * 3)); if (tk !== lastTick && u < 1) { lastTick = tk; play2('count', tk, lv); }
+          if (u < 1) return window.requestAnimationFrame(step);
+          sp.textContent = to; el.classList.remove('bkslam'); void el.offsetWidth; el.classList.add('bkslam');
+          if (lv >= 1) shake(0.5 + lv * 0.5);
+          if (lv >= 3) confetti(lv * 14);
+        })(t0);
+      });
+    }
+    function play2(k, a, b) { try { if (snd[k]) snd[k](a, b); } catch (e) {} }
+    function flash(color) { var r = root(); if (!r) return; var d = document.createElement('div'); d.className = 'bkflash'; d.style.background = color; r.appendChild(d); window.setTimeout(function () { d.remove(); }, 650); }
+    function shake(k) { var r = root(); if (!r || reducedMotion()) return; r.style.setProperty('--shk', k || 1); r.classList.remove('bkshake'); void r.offsetWidth; r.classList.add('bkshake'); window.setTimeout(function () { r.classList.remove('bkshake'); }, 550); }
+    function confetti(n) {
+      var r = root(); if (!r || reducedMotion() || !r.animate) return;
+      for (var i = 0; i < n; i++) (function (i) {
+        var p = document.createElement('span'); p.className = 'bkconf'; p.style.left = Math.random() * 100 + 'vw'; p.style.background = ['#ffd23f', '#4aa3ff', '#ff4a5e', '#5fd08f', '#ffffff', '#b07cff'][i % 6]; r.appendChild(p);
+        var an = p.animate([{ transform: 'translateY(-10vh) rotate(0deg)', opacity: 1 }, { transform: 'translateY(110vh) rotate(' + (Math.random() * 1400 - 700) + 'deg)', opacity: .9 }], { duration: 1700 + Math.random() * 1900, delay: Math.random() * 900, easing: 'cubic-bezier(.3,.2,.6,1)' });
+        an.onfinish = function () { p.remove(); };
+      })(i);
+    }
+    // called after an event has been applied: pre = state before it
+    function after(e, pre) {
+      var d = S.d, ended = d.results.length > pre.n, last = ended ? d.results[d.results.length - 1] : null;
+      if (e.t === 'roll') {
+        if (last && last.how === 'bust') { play('bust'); shake(); flash('rgba(200,30,40,.9)'); float('BUST', '#d8343f', true); return; }
+        var gain = d.pot - pre.pot;
+        if (e.sum === 7) { play('seventy'); float('+' + gain, '#e0a100', true); flash('rgba(255,210,63,.8)'); if (gain >= 70) confetti(24); }
+        else if (e.doubles && pre.pot > 0 && d.pot === pre.pot * 2) {
+          var lv = heat(d.pot);
+          play('dbl', lv); float('×2' + (lv >= 3 ? '!!' : lv >= 2 ? '!' : ''), ['#7a4bff', '#ff9f1c', '#ff5a1f', '#ff1e56', '#b06bff'][lv], true, null, lv >= 2);
+          flash(['rgba(122,75,255,.6)', 'rgba(255,159,28,.7)', 'rgba(255,90,31,.8)', 'rgba(255,30,86,.85)', 'rgba(176,107,255,.9)'][lv]);
+          countUp(pre.pot, d.pot, lv);
+        }
+        else { play('tick', d.pot); float('+' + gain, '#1f9d55', false); }
+      } else if (e.t === 'bank') {
+        play('bank'); float('+' + pre.pot + ' banked', '#1f9d55', false);
+        if (last) window.setTimeout(function () { play('round'); }, 450);
+      }
+    }
+    return { play: play, after: after, confetti: confetti, flash: flash };
+  })();
+  function commit(keepRedo) {
+    var g = S.game; if (!g) return;
+    if (!keepRedo) g.redo = [];
+    var before = S.d.results.length;
+    S.d = C.replay(g); saveGame();
+    var res = lastResult();
+    if (S.d.results.length > before && res && res.round !== S.roundShown) { S.roundShown = res.round; S.pending = res; }
+  }
+  function act(e) {
+    if (!S.game) return;
+    var pre = { pot: S.d.pot, n: S.d.results.length };
+    S.game.log.push(e); commit();
+    if (e.t === 'roll' || e.t === 'bank') FX.after(e, pre);
+  }
+  // A replay after an edit: no round-end sheet unless the game is now over.
+  function commitQuiet() {
+    var g = S.game; if (!g) return;
+    g.redo = []; S.d = C.replay(g); saveGame();
+    S.roundShown = lastResult() ? lastResult().round : 0;
+    if (S.d.over && !g.finished) S.pending = lastResult();
+  }
+  // how hot the pot is: 0 calm, 4 absurd. Drives the pot number's look and how hard a doubling lands.
+  function heat(pot) { return pot >= 3000 ? 4 : pot >= 1200 ? 3 : pot >= 500 ? 2 : pot >= 200 ? 1 : 0; }
+  function isSafe() { return S.d.roll < (S.game ? S.game.rules.safeRolls : 3); }
+  function isBanked(id) { return Object.prototype.hasOwnProperty.call(S.d.banked, id); }
+  function score(id) { return S.d.scores[id] || 0; }
+  function pname(id) { var p = null; if (S.game && id != null) S.game.players.forEach(function (q) { if (q.id === id) p = q; }); return p ? p.name : '?'; }
+  function roster() { return S.game ? S.game.players.filter(function (p) { return !p.removed; }) : []; }
+  function lowestScore() { var r = roster(); return r.length ? Math.min.apply(null, r.map(function (p) { return score(p.id); })) : 0; }
+  function enterRoll(sum, doubles) {
+    if (!S.game || S.d.over) return;
+    var now = Date.now(); if (now - S.lastEntry <= 250) return;     // a double tap is one roll
+    S.lastEntry = now;
+    act(E.roll(sum, doubles, S.d.roller));
+  }
+  function bank(pid) { if (S.d.roll > 0 && !S.d.over && !isBanked(pid)) act(E.bank(pid)); }
+  function passDice() {
+    var o = roster().filter(function (p) { return S.d.active.has(p.id) && !isBanked(p.id); }).map(function (p) { return p.id; });
+    if (!o.length) return;
+    act(E.roller(o[(o.indexOf(S.d.roller) + 1) % o.length]));
+  }
+  function undo() {
+    var g = S.game; if (!g || !g.log.length) return;
+    g.redo.push(g.log.pop()); g.finished = false; FX.play('undo');
+    S.d = C.replay(g); saveGame(); S.pending = null;
+    S.roundShown = lastResult() ? lastResult().round : 0;
+    if (S.screen === 'end') S.screen = 'game';
+  }
+  function redo() { var g = S.game; if (!g || !g.redo.length) return; g.log.push(g.redo.pop()); commit(true); }
+  function unbank(pid) {
+    var g = S.game;
+    for (var i = g.log.length - 1; i >= 0; i--) {
+      if (S.d.eventRounds[i] === S.d.round && g.log[i].t === 'bank' && g.log[i].p === pid) { g.log.splice(i, 1); commit(); return; }
+    }
+  }
+  function replaceRoll(i, sum, doubles) { var e = S.game.log[i]; if (!e || e.t !== 'roll') return; S.game.log[i] = E.roll(sum, doubles, e.roller); commitQuiet(); }
+  function insertBank(i, pid) { if (i < 0 || i >= S.game.log.length) return; S.game.log.splice(i + 1, 0, E.bank(pid)); commitQuiet(); }
+  function deleteEvent(i) { if (i < 0 || i >= S.game.log.length) return; S.game.log.splice(i, 1); commitQuiet(); }
+
+  // ---------- players ----------
+  function addPlayer(name, sc) {
+    var n = name.trim(); if (!n || !S.game) return;
+    var p = C.Player(n, { late: true });
+    S.game.players.push(p);
+    S.prefs.recentNames = [n].concat(S.prefs.recentNames.filter(function (x) { return x.toLowerCase() !== n.toLowerCase(); })).slice(0, 16); savePrefs();
+    act(E.join(p.id, sc));
+  }
+  function rename(pid, name) { var n = name.trim(); if (!n) return; S.game.players.forEach(function (p) { if (p.id === pid) p.name = n; }); saveGame(); }
+  function move(pid, delta) {
+    var ps = S.game.players, vis = [], i = -1;
+    ps.forEach(function (p, k) { if (!p.removed) vis.push(k); if (p.id === pid) i = k; });
+    var vi = vis.indexOf(i), to = vis[vi + delta];
+    if (vi < 0 || to === undefined) return;
+    var t = ps[i]; ps[i] = ps[to]; ps[to] = t;
+    S.d = C.replay(S.game); saveGame();
+  }
+  function removePlayer(pid) { S.game.players.forEach(function (p) { if (p.id === pid) p.removed = true; }); act(E.leave(pid)); }
+  function setRules(r) { S.game.rules = C.Rules(r); S.prefs.rules = C.Rules(r); savePrefs(); commitQuiet(); }
+  function setRounds(n) { S.game.rounds = Math.max(Math.max(1, S.d.results.length), Math.min(99, n)); S.prefs.rounds = S.game.rounds; savePrefs(); commitQuiet(); }
+  function setVirtual(v) { S.game.virtualDice = v; S.prefs.virtualDice = v; savePrefs(); S.dice = null; S.rolling = false; S.anim = null; saveGame(); }
+  function finish() { if (!S.game) return; if (!S.game.finished) { FX.play('win'); window.setTimeout(function () { FX.confetti(90); }, 60); } S.game.finished = true; saveGame(); S.pending = null; S.sheet = null; S.screen = 'end'; }
+  function toSetup() { newSetup(S.game); S.game = null; saveGame(); S.pending = null; S.sheet = null; S.d = C.replay(C.Game([], 1)); S.screen = 'setup'; }
+
+  function statusLine() {
+    var g = S.game, d = S.d; if (!g) return '';
+    if (!g.log.length) return 'Round ' + d.round + '. ' + pname(d.roller) + ' rolls first.';
+    var e = g.log[g.log.length - 1], last = lastResult();
+    if (d.over) return 'Game over.';
+    if (d.roll === 0 && last && last.round === d.round - 1) {
+      if (e.t === 'roll' && last.how === 'bust') return 'Bust. Round ' + last.round + ' over, pot lost.';
+      if (last.how === 'allBanked') return 'All banked. Round ' + last.round + ' over.';
+    }
+    switch (e.t) {
+      case 'roll': return pname(e.roller) + ' rolled ' + rollText(e) + ' \u2192 pot ' + d.pot;
+      case 'bank': return pname(e.p) + ' banked ' + (d.banked[e.p] || 0);
+      case 'join': return pname(e.p) + ' joined with ' + e.score;
+      case 'leave': return pname(e.p) + ' is sitting out';
+      case 'rejoin': return pname(e.p) + ' is back in';
+      default: return pname(e.p) + ' rolls';
+    }
+  }
+  function rollText(e) { return e.doubles ? (e.sum > 0 ? (e.sum / 2) + '\u00b7' + (e.sum / 2) : 'doubles') : String(e.sum); }
+
+  // ---------- simulated dice ----------
+  function reducedMotion() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  function dieState(i, now) {
+    var rest = { x: i ? 62 : -62, y: i ? 5 : -4, z: i ? 10 : -8, rx: S.ang[i][0], ry: S.ang[i][1] };
+    var a = S.anim; if (!a) return rest;
+    var p = Math.max(0, Math.min(1, (now - a.t0) / a.dur)), e = 1 - Math.pow(1 - p, 3), t = a.dice[i];
+    return { x: rest.x + a.dir * (1 - e) * 190, y: rest.y - Math.abs(Math.sin(p * Math.PI * 2.5)) * (1 - p) * 60,
+             z: rest.z + a.dir * (1 - e) * (i ? 150 : 110), rx: t.rx0 + (t.rx1 - t.rx0) * e, ry: t.ry0 + (t.ry1 - t.ry0) * e };
+  }
+  function dieCss(s) { return ['translate(' + s.x.toFixed(1) + 'px,' + s.y.toFixed(1) + 'px)',
+                               'rotateZ(' + s.z.toFixed(1) + 'deg) rotateX(' + s.rx.toFixed(1) + 'deg) rotateY(' + s.ry.toFixed(1) + 'deg)']; }
+  function paintDice() {
+    var now = performance.now();
+    for (var i = 0; i < 2; i++) {
+      var w = document.getElementById('bank-dw' + i), c = document.getElementById('bank-cube' + i);
+      if (!w || !c) continue;
+      var css = dieCss(dieState(i, now)); w.style.transform = css[0]; c.style.transform = css[1];
+    }
+  }
+  function frame() { if (!S.anim) return; paintDice(); window.requestAnimationFrame(frame); }
+  function virtualRoll() {
+    if (S.rolling || !S.game || S.d.over || S.pending || S.sheet || !S.game.virtualDice) return;
+    var a = C.rollDie(), b = C.rollDie(), faces = [a, b];        // the result is decided here, fairly; the tumble only shows it
+    S.rolling = true; S.flip = !S.flip; FX.play('rattle', reducedMotion() ? 0.3 : 0.85);
+    S.anim = { t0: performance.now(), dur: reducedMotion() ? 350 : 950, dir: S.flip ? 1 : -1, faces: faces, dice: faces.map(function (f, i) {
+      var rx0 = S.ang[i][0], ry0 = S.ang[i][1];
+      function target(from, to, turns) { return to + 360 * Math.ceil((from + 360 * turns - to) / 360); }
+      return { rx0: rx0, ry0: ry0, rx1: target(rx0, FACE[f][0], 1 + Math.floor(Math.random() * 2)), ry1: target(ry0, FACE[f][1], 1 + Math.floor(Math.random() * 2)) };
+    }) };
+    var token = S.anim;
+    render();
+    window.requestAnimationFrame(frame);
+    window.setTimeout(function () {
+      if (S.anim !== token) return;
+      S.ang = [FACE[a].slice(), FACE[b].slice()]; S.anim = null; S.rolling = false; S.dice = [a, b];
+      S.lastEntry = 0;
+      enterRoll(a + b, a === b);
+      render();
+    }, token.dur + 30);
+  }
+
+  // ---------- html helpers ----------
+  function h(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function attrs(act, arg) { return ' data-act="' + act + '"' + (arg === undefined || arg === null ? '' : ' data-arg="' + h(arg) + '"'); }
+  function btn(cls, act, arg, label, extra) { return '<button type="button" class="' + cls + '"' + attrs(act, arg) + (extra ? ' ' + extra : '') + '>' + label + '</button>'; }
+  var PIPS = { 1: [[2, 2]], 2: [[1, 1], [3, 3]], 3: [[1, 1], [2, 2], [3, 3]], 4: [[1, 1], [3, 1], [1, 3], [3, 3]],
+               5: [[1, 1], [3, 1], [2, 2], [1, 3], [3, 3]], 6: [[1, 1], [3, 1], [1, 2], [3, 2], [1, 3], [3, 3]] };
+  // A die face drawn as a shape, so it renders at any size and in the current text colour.
+  function die(n, size) {
+    return '<svg class="die" width="' + size + '" height="' + size + '" viewBox="0 0 4 4" aria-hidden="true"><rect x=".18" y=".18" width="3.64" height="3.64" rx=".7" fill="none" stroke="currentColor" stroke-width=".32"/>' +
+      PIPS[n].map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r=".4" fill="currentColor"/>'; }).join('') + '</svg>';
+  }
+  function cubeFace(n) {
+    var pos = { 1: 26, 2: 50, 3: 74 };
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">' + PIPS[n].map(function (p) { return '<circle cx="' + pos[p[0]] + '" cy="' + pos[p[1]] + '" r="9.5" fill="#101010"/>'; }).join('') + '</svg>';
+  }
+  function arrow(flip) { return '<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"' + (flip ? ' style="transform:scaleX(-1)"' : '') + '><path d="M8 4 3.5 8.5 8 13M4 8.5h8a4.5 4.5 0 0 1 0 9H8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  function seg(act, options, selected, label) {
+    return '<div class="seg" role="group" aria-label="' + h(label) + '">' + options.map(function (o) {
+      return btn('', act, o[0], h(o[1]), 'aria-pressed="' + (String(o[0]) === String(selected)) + '"'); }).join('') + '</div>';
+  }
+  function stepper(act, value, lo, hi, label) {
+    return '<div class="stepper">' + btn('ob', act, -1, MINUS, 'aria-label="Fewer ' + label + '"' + (value <= lo ? ' disabled' : '')) +
+      '<span class="val big" aria-label="' + value + ' ' + label + '">' + value + '</span>' +
+      btn('ob', act, 1, '+', 'aria-label="More ' + label + '"' + (value >= hi ? ' disabled' : '')) + '</div>';
+  }
+  function toggle(act, on, label) { return '<button type="button" class="switch" role="switch" aria-checked="' + !!on + '" aria-label="' + h(label) + '"' + attrs(act) + '><span></span></button>'; }
+  function rulesRows(r) {
+    function row(t, sub, control) { return '<div class="rrow"><div class="grow"><div class="t">' + t + '</div><div class="sub">' + sub + '</div></div>' + control + '</div>'; }
+    return row('Safe rolls', 'Rolls before a 7 busts', stepper('safeStep', r.safeRolls, 0, 6, 'safe rolls')) +
+      row('A safe 7 pays 70', r.sevenPays70 ? 'On: a 7 in the safe rolls adds 70' : 'Off: it adds 7 like any other roll', toggle('tog7', r.sevenPays70, 'A safe 7 pays 70')) +
+      row('Safe doubles double the pot', r.safeDoublesDouble ? 'On: doubles in the safe rolls double it' : 'Off: they just add their sum', toggle('togDbl', r.safeDoublesDouble, 'Safe doubles double the pot'));
+  }
+  function themeSeg() { return seg('theme', [['system', 'System'], ['light', 'Light'], ['dark', 'Dark']], S.prefs.theme, 'Theme'); }
+
+  // ---------- screens ----------
+  function setupHTML() {
+    var s = S.setup, r = s.rules, recent = recentNotInSetup();
+    var out = '<div class="screen"><h1 class="title" id="setup-title">Bank</h1>';
+    out += '<div class="sec"><div class="row between"><span class="lab">Players</span><span class="sub">Roll order, top to bottom</span></div>';
+    s.names.forEach(function (n, i) {
+      out += '<div class="namerow"><span class="num big">' + (i + 1) + '</span><input class="field" type="text" data-in="name" data-arg="' + i + '" value="' + h(n) +
+        '" placeholder="Player ' + (i + 1) + '" maxlength="24" autocomplete="off" autocapitalize="words" autocorrect="off" spellcheck="false" enterkeyhint="next" aria-label="Name of player ' + (i + 1) + '">' +
+        btn('ob x', 'rmName', i, '\u00d7', 'aria-label="Remove player ' + (i + 1) + '"' + (s.names.length <= 1 ? ' disabled' : '')) + '</div>';
+    });
+    out += btn('sb', 'addName', null, '+ Add player');
+    if (recent.length) out += '<div class="flow">' + recent.map(function (n) { return btn('recent', 'recent', n, '+ ' + h(n), 'aria-label="Add ' + h(n) + '"'); }).join('') + '</div>';
+    out += '</div>';
+    out += '<div class="sec"><span class="lab">Rounds</span><div class="row" style="gap:10px"><div class="grow">' + seg('rounds', [[10, '10'], [15, '15'], [20, '20']], s.rounds, 'Rounds') + '</div>' +
+      stepper('roundsStep', s.rounds, 1, 99, 'rounds') + '</div></div>';
+    out += '<div class="sec"><span class="lab">Dice</span>' + seg('virt', [[0, 'Physical dice'], [1, 'Roll in app']], s.virtualDice ? 1 : 0, 'Dice') + '</div>';
+    out += '<div class="card disc"><button type="button"' + attrs('toggleRules') + ' aria-expanded="' + S.showRules + '"><span class="lab">House rules</span><span class="lab" aria-hidden="true">' + (S.showRules ? '\u2212' : '+') + '</span></button>' +
+      (S.showRules ? '<div style="padding-bottom:6px">' + rulesRows(r) + '</div>' : '') + '</div>';
+    out += '<div class="sec"><span class="lab">Theme</span>' + themeSeg() + '</div>';
+    out += btn('pb', 'start', null, 'Start game', 'id="start"' + (setupNames().length ? '' : ' disabled'));
+    out += '<p class="sub" style="line-height:1.45">Each round, the first ' + r.safeRolls + ' rolls are safe: a 7 pays ' + (r.sevenPays70 ? 70 : 7) + ' and doubles ' +
+      (r.safeDoublesDouble ? 'double the pot' : 'add their face value') + '. After that, doubles double the pot and a 7 busts it. Anyone can bank the pot at any time and sit out the rest of the round.</p>';
+    return out + '</div>';
+  }
+
+  function gameHTML() {
+    var g = S.game, d = S.d, r = g.rules, safe = isSafe();
+    var ros = roster(), players = ros.filter(function (p) { return d.active.has(p.id); });
+    var inCount = players.filter(function (p) { return !isBanked(p.id); }).length, activeCount = players.length;
+    var out = '<div class="game' + (g.virtualDice ? ' virtual' : '') + '">';
+    out += '<div class="top">' + btn('ob', 'open', 'menu', 'Menu', 'id="menu"') +
+      '<div class="mid" id="round-title"><span class="rt big">Round ' + Math.min(d.round, g.rounds) + '</span> <span class="of">of ' + g.rounds + (d.round === g.rounds ? ' \u00b7 final' : '') + '</span></div>' +
+      btn('ob', 'open', 'players', 'Players', 'id="players"') + '</div>';
+    // pot
+    var dots = '';
+    for (var i = 0; i < Math.max(r.safeRolls, 0); i++) dots += '<i' + (i < d.roll ? ' class="on"' : '') + '></i>';
+    out += '<div class="pot' + (safe ? '' : ' risk') + '"><div class="row between" style="min-height:44px"><div class="row lab" aria-label="' +
+      (safe ? 'Roll ' + (d.roll + 1) + ', safe, ' + d.roll + ' of ' + r.safeRolls + ' safe rolls done' : 'Roll ' + (d.roll + 1) + ', risk: a 7 busts') + '"><span>Roll ' + (d.roll + 1) + '</span>' +
+      (safe ? '<span class="dots" aria-hidden="true">' + dots + '</span><span>safe</span>' : '<span class="badge">Risk</span>') + '</div>' +
+      '<button type="button" class="rollerbtn" id="roller"' + attrs('pass') + ' aria-label="' + h(pname(d.roller)) + ' rolls. Pass the dice to the next player">' + die(3, 14) +
+      '<span class="nowrap">' + h(pname(d.roller)) + ' rolls</span><span class="dim" style="color:var(--ink2)">\u203a</span></button></div>';
+    out += '<div class="potnum' + (activeCount <= 4 ? '' : activeCount <= 6 ? ' m' : ' s') + (S.lastPot !== null && S.lastPot !== d.pot ? ' bump' : '') + (heat(d.pot) ? ' heat h' + heat(d.pot) : '') + '" id="pot" aria-label="Pot ' + d.pot + '"><span>' + d.pot + '</span></div>';
+    out += '<div class="potfoot"><span class="nowrap' + (safe ? '' : ' rk') + '">' + (safe ? '7 pays ' + (r.sevenPays70 ? 70 : 7) + ' \u00b7 doubles ' + (r.safeDoublesDouble ? '\u00d72' : 'add face') : '7 busts \u00b7 doubles \u00d72') +
+      '</span><span id="in-count">' + inCount + ' in \u00b7 ' + (activeCount - inCount) + ' banked</span></div></div>';
+    // players
+    var st = C.standings(g, d), byId = {}; st.forEach(function (s) { byId[s.id] = s; });
+    var leader = st.length ? st[0].score : 0, second = st.length > 1 ? st[1].score : null;
+    out += '<div class="chips"><div class="chipgrid' + (players.length > 4 ? ' compact' : '') + '">';
+    players.forEach(function (p) {
+      var s = byId[p.id], banked = isBanked(p.id), gap = leader - s.score, tiedLead = st.length > 1 && st[1].score === s.score && s.rank === 1;
+      var isLeader = s.rank === 1 && s.score > 0, rolls = d.roller === p.id, disabled = (d.roll === 0 && !banked) || d.over;
+      var sub, aria = p.name + ', ' + ord(s.rank) + ', ' + s.score + ' points';
+      if (banked) {
+        sub = '<span class="bk">Banked</span>+' + (d.banked[p.id] || 0) + (gap > 0 ? ' \u00b7 ' + MINUS + gap : '');
+        aria += ', banked ' + (d.banked[p.id] || 0) + ' this round. Opens un-bank';
+      } else if (d.roll === 0) {
+        sub = '<span class="dim">' + (gap > 0 ? MINUS + gap + ' to lead' : tiedLead ? 'Tied for lead' : second !== null ? 'Leads by ' + (s.score - second) : '&nbsp;') + '</span>';
+      } else {
+        var pv = C.previewBank(g, d, p.id);
+        var lead = gap > 0 ? MINUS + gap : tiedLead ? 'tied' : '+' + (second !== null ? s.score - second : 0);
+        var after = pv.alone ? '' : pv.delta > 0 ? ord(pv.rank) + ' +' + pv.delta : pv.delta === 0 ? 'ties 1st' : ord(pv.rank) + ' ' + MINUS + (-pv.delta);
+        sub = '<span class="dim">' + lead + ' \u00b7 bank \u2192 </span><b>' + after + '</b>';
+        aria += ', still in; banking now would put them ' + ord(pv.rank) + (pv.alone ? '' : pv.delta >= 0 ? ', ' + pv.delta + ' ahead' : ', ' + (-pv.delta) + ' behind') + '. Banks the pot';
+      }
+      if (rolls) aria += ', rolling';
+      out += '<button type="button" class="chip' + (banked ? ' banked' : '') + (isLeader && !banked ? ' leader' : '') + '"' + attrs('chip', p.id) + ' data-name="' + h(p.name) + '" aria-label="' + h(aria) + '"' + (disabled ? ' disabled' : '') + '>' +
+        '<span class="l1"><span class="rank big">' + ord(s.rank) + '</span><span class="nm">' + (rolls ? die(3, 13) : '') + '<span class="nowrap">' + h(p.name) + '</span></span><span class="sc big">' + s.score + '</span></span>' +
+        '<span class="l2">' + sub + '</span></button>';
+    });
+    if (!players.length) out += '<p class="sub">Everyone is sitting out. Open Players to bring someone back.</p>';
+    out += '</div></div>';
+    // dice pad
+    out += '<div class="pad"><div class="row">' + btn('ob', 'undo', null, arrow() + 'Undo', 'id="undo"' + (g.log.length ? '' : ' disabled')) +
+      (g.redo.length ? btn('ob', 'redo', null, arrow(true), 'id="redo" aria-label="Redo"') : '') +
+      '<div class="status" id="status" role="status">' + h(statusLine()) + '</div>' + btn('ob', 'open', 'edit', 'Edit', 'id="edit"') + '</div>';
+    if (d.over) out += btn('pb', 'final', null, 'See final standings');
+    else if (g.virtualDice) out += virtualHTML(safe);
+    else out += keysHTML(safe, r);
+    return out + '</div></div>';
+  }
+  function keysHTML(safe, r) {
+    var sevenLabel = safe ? '+' + (r.sevenPays70 ? 70 : 7) : 'Bust';
+    var canDouble = (!safe || r.safeDoublesDouble) && S.d.pot > 0;
+    function key(n) { return btn('key', 'key', n, String(n), 'aria-label="Rolled ' + n + '"'); }
+    return '<div class="keys"><div class="krow">' + [2, 3, 4, 5, 6].map(key).join('') + '</div>' +
+      btn('key wide ' + (safe ? 'strong' : 'filled'), 'key', 7, '7 <span class="kl">' + sevenLabel + '</span>', 'aria-label="Rolled 7, ' + sevenLabel + '"') +
+      '<div class="krow">' + [8, 9, 10, 11, 12].map(key).join('') + '</div>' +
+      btn('key wide alt' + (canDouble ? ' strong' : ''), 'dbl', null, die(3, 20) + die(3, 20) + ' Doubles <span class="kl">' + (canDouble ? '\u00d72' : 'enter the sum') + '</span>',
+          'id="key-doubles" aria-label="' + (canDouble ? 'Rolled doubles, pot doubles' : 'Doubles count as their sum right now; enter the sum') + '"' + (canDouble ? '' : ' disabled')) +
+      '</div><div class="hint">Keyboard: 2\u20139 \u00b7 1 then 0, 1 or 2 for 10\u201312 \u00b7 D doubles \u00b7 U undo</div>';
+  }
+  function virtualHTML(safe) {
+    var dc = S.dice, now = performance.now();
+    var result = S.rolling ? 'Rolling\u2026' : dc ? (dc[0] === dc[1] ? 'Double ' + dc[0] + 's' : dc[0] + ' + ' + dc[1] + ' = ' + (dc[0] + dc[1])) : 'Tap Roll';
+    var cubes = '';
+    for (var i = 0; i < 2; i++) {
+      var css = dieCss(dieState(i, now));
+      cubes += '<div class="dw" id="bank-dw' + i + '" style="transform:' + css[0] + '"><div class="cube" id="bank-cube' + i + '" style="transform:' + css[1] + '">' +
+        '<div class="face" style="transform:translateZ(42px)">' + cubeFace(1) + '</div>' +
+        '<div class="face" style="transform:rotateY(180deg) translateZ(42px)">' + cubeFace(6) + '</div>' +
+        '<div class="face" style="transform:rotateY(90deg) translateZ(42px)">' + cubeFace(2) + '</div>' +
+        '<div class="face" style="transform:rotateY(-90deg) translateZ(42px)">' + cubeFace(5) + '</div>' +
+        '<div class="face" style="transform:rotateX(90deg) translateZ(42px)">' + cubeFace(3) + '</div>' +
+        '<div class="face" style="transform:rotateX(-90deg) translateZ(42px)">' + cubeFace(4) + '</div></div></div>';
+    }
+    return '<div class="tray"' + attrs('vroll') + ' id="tray" aria-label="Dice tray. ' + result + '">' + cubes +
+      '<div class="pill" id="dice-result" data-faces="' + (dc && !S.rolling ? dc[0] + ',' + dc[1] : '') + '">' + result + '</div></div>' +
+      btn('pb', 'vroll', null, die(3, 22) + '<span class="nowrap">Roll for ' + h(pname(S.d.roller)) + '</span>', 'id="roll"' + (S.rolling ? ' disabled' : '')) +
+      '<div class="cap"><span>' + (safe ? 'Safe roll' : '7 busts \u00b7 doubles \u00d72') + '</span><span>Tap the tray or press R</span></div>';
+  }
+
+  function endHTML() {
+    var g = S.game, st = C.standings(g, S.d);
+    var tie = st.length > 1 && st[0].score === st[1].score, winners = st.filter(function (s) { return s.rank === 1; });
+    var out = '<div class="screen" style="gap:16px"><div class="row between"><div><span class="big" style="font-size:22px;text-transform:uppercase">Final</span> <span class="sub" style="font-weight:600">' + g.rounds + ' rounds</span></div>' +
+      btn('ob', 'undo', null, arrow() + 'Undo', 'id="undo"' + (g.log.length ? '' : ' disabled')) + '</div>';
+    out += '<div><div class="lab">' + (tie ? 'Tied for the win' : 'Winner') + '</div><div class="winner" id="winner">' + h(winners.map(function (s) { return s.name; }).join(' & ')) + '</div>' +
+      '<div class="big" style="font-size:22px;color:var(--ink2)">' + (st.length ? st[0].score : 0) + ' points' + (!tie && st.length > 1 ? ' \u00b7 ' + (st[0].score - st[1].score) + ' clear' : '') + '</div></div>';
+    out += '<div class="sec" style="gap:8px" id="final-standings">' + st.map(function (s) {
+      var first = s.rank === 1;
+      return '<div class="srow' + (first ? ' first' : '') + '" data-name="' + h(s.name) + '" data-score="' + s.score + '"><span class="big" style="width:34px;font-size:18px;opacity:.8">' + ord(s.rank) + '</span><span class="grow nowrap" style="font-size:18px;font-weight:700">' + h(s.name) + '</span>' +
+        (first ? '' : '<span style="font-size:13px;font-weight:600;opacity:.8">' + MINUS + (st[0].score - s.score) + '</span>') + '<span class="big" style="font-size:30px">' + s.score + '</span></div>';
+    }).join('') + '</div>';
+    out += btn('pb', 'again', null, 'Play again', 'id="play-again"') + btn('sb', 'open', 'history', 'History', 'id="history"') + btn('tb', 'backSetup', null, 'Change players or rounds');
+    return out + '</div>';
+  }
+
+  // ---------- sheets ----------
+  function head(title) { return '<div class="shead"><h2 id="bank-sheet-title">' + h(title) + '</h2>' + btn('ob', 'close', null, 'Done', 'id="sheet-done"') + '</div>'; }
+  function menuItem(act, arg, title, sub, danger) { return '<button type="button" class="mitem' + (danger ? ' danger' : '') + '"' + attrs(act, arg) + '><b>' + title + '</b><span>' + h(sub) + '</span></button>'; }
+  function confirmHTML(title, text, label, act, cancel) {
+    return head(title) + '<p class="sub" style="font-size:15px">' + text + '</p><div class="row">' + btn('sb', 'close', null, cancel || 'Cancel') + btn('pb', act, null, label, 'id="confirm"') + '</div>';
+  }
+  function sheetHTML() {
+    var g = S.game, d = S.d, k = S.sheet ? S.sheet.kind : S.pending ? 'roundEnd' : null;
+    if (!k || !g) return '';
+    var body = '', wide = false;
+    if (k === 'menu') {
+      body = head('Bank') + menuItem('open', 'history', 'History', 'Round by round') + menuItem('open', 'players', 'Players', 'Add, rename, reorder, sit out') +
+        menuItem('open', 'rules', 'Rules &amp; dice', (g.virtualDice ? 'Rolling in app' : 'Physical dice') + ' \u00b7 ' + g.rounds + ' rounds') +
+        menuItem('cycleTheme', null, 'Theme', S.prefs.theme.charAt(0).toUpperCase() + S.prefs.theme.slice(1)) +
+        menuItem('toggleSound', null, 'Sound', S.prefs.sound ? 'On' : 'Off') +
+        menuItem('open', 'confirmEnd', 'End game now', 'Score as it stands') + menuItem('open', 'confirmNew', 'New game', 'Keeps these names', true);
+    } else if (k === 'confirmEnd') {
+      body = confirmHTML('End the game now?', 'Final standings will use the scores as they are. Undo still works afterwards.', 'End game', 'doEnd');
+    } else if (k === 'confirmNew') {
+      body = confirmHTML('Start a new game?', 'This game will be cleared. The player names are kept for the next setup.', 'New game', 'doNew');
+    } else if (k === 'unbank') {
+      var pid = S.sheet.pid;
+      body = confirmHTML(pname(pid), h(pname(pid)) + ' banked ' + (d.banked[pid] || 0) + ' after roll ' + (d.bankedAt[pid] || 0) + ' this round.', 'Un-bank', 'doUnbank', 'Keep it');
+    } else if (k === 'rules') {
+      body = head('Rules & dice') + '<div class="card" style="padding:4px 14px">' + rulesRows(g.rules) +
+        '<div class="rrow"><div class="grow"><div class="t">Rounds</div><div class="sub">Can\u2019t go below rounds already played</div></div>' + stepper('gRoundsStep', g.rounds, Math.max(1, d.results.length), 99, 'rounds') + '</div>' +
+        '<div class="rrow"><div class="grow"><div class="t">Dice</div><div class="sub">Physical is the default</div></div><div style="width:170px;flex:none">' + seg('gVirt', [[0, 'Physical'], [1, 'In app']], g.virtualDice ? 1 : 0, 'Dice') + '</div></div></div>' +
+        '<p class="sub">Rule changes re-score the whole game from its log, so they apply to every round.</p>';
+    } else if (k === 'players') body = playersHTML();
+    else if (k === 'edit') body = editHTML();
+    else if (k === 'history') { body = historyHTML(); wide = true; }
+    else if (k === 'roundEnd') body = roundEndHTML(S.pending);
+    return '<div class="overlay" data-overlay="1"><div class="sheet' + (wide ? ' wide' : '') + '" role="dialog" aria-modal="true" aria-labelledby="bank-sheet-title" tabindex="-1" data-kind="' + k + '">' + body + '</div></div>';
+  }
+  function playersHTML() {
+    var d = S.d, ros = roster();
+    var out = head('Players') + '<div class="card" style="padding:0 14px">';
+    ros.forEach(function (p, i) {
+      var active = d.active.has(p.id), nm = h(p.name);
+      out += '<div class="prow"><div class="pn"><input class="field" type="text" data-in="rename" data-arg="' + p.id + '" value="' + nm + '" maxlength="24" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Name of player ' + (i + 1) + '">' +
+        '<span class="sub">' + score(p.id) + ' pts \u00b7 ' + (!active ? 'sitting out' : isBanked(p.id) ? 'banked this round' : 'in') + '</span></div><div class="pb2">' +
+        btn('ob', 'up', p.id, '\u2191', 'aria-label="Move ' + nm + ' up"' + (i === 0 ? ' disabled' : '')) +
+        btn('ob', 'down', p.id, '\u2193', 'aria-label="Move ' + nm + ' down"' + (i === ros.length - 1 ? ' disabled' : '')) +
+        btn('ob', 'sit', p.id, active ? 'Sit out' : 'Return', 'aria-label="' + nm + (active ? ' sits out' : ' returns') + '"') +
+        btn('ob x', 'rmAsk', p.id, '\u00d7', 'aria-label="Remove ' + nm + '"') + '</div>';
+      if (S.removing === p.id) out += '<div class="row" style="flex:1 1 100%;flex-wrap:wrap"><span class="sub grow" style="flex-basis:200px">Remove ' + nm + '? Their score leaves the standings. Undo brings them back.</span>' +
+        btn('ob', 'rmCancel', null, 'Cancel') + btn('ob filled', 'rmDo', p.id, 'Remove') + '</div>';
+      out += '</div>';
+    });
+    out += '</div><div class="lab" style="padding-top:4px">Add a player</div><div class="row">' +
+      '<input class="field grow" type="text" id="new-name" data-in="newName" value="' + h(S.newName) + '" placeholder="Name" maxlength="24" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" aria-label="New player name">' +
+      '<input class="field" type="text" inputmode="numeric" id="new-score" data-in="newScore" value="' + h(S.newScore) + '" placeholder="Score" maxlength="7" autocomplete="off" aria-label="Starting score" style="width:90px;flex:none;font-variant-numeric:tabular-nums">' +
+      btn('ob filled', 'addPlayer', null, 'Add', 'id="new-add" style="min-height:48px"') + '</div>' +
+      '<p class="sub">Latecomers start at the lowest current score (' + lowestScore() + ') so they join tied for last, not ahead of anyone. Change it if your table prefers 0 or the average.</p>';
+    return out;
+  }
+  function editRows() {
+    var g = S.game, out = [], prevResults = 0, prevRoll = 0;
+    for (var i = 0; i < g.log.length; i++) {
+      var d = C.replay(Object.assign({}, g, { log: g.log.slice(0, i + 1) }));
+      var ended = d.results.length > prevResults, rollNo = d.roll;
+      if (ended && g.log[i].t === 'roll') rollNo = prevRoll + 1;        // the roll that ended the round
+      out.push({ id: i, round: S.d.eventRounds[i], rollNo: rollNo, pot: ended && g.log[i].t === 'bank' ? d.results[d.results.length - 1].pot : d.pot, ended: ended });
+      prevResults = d.results.length; prevRoll = d.roll;
+    }
+    return out;
+  }
+  function describe(e) {
+    switch (e.t) {
+      case 'roll': return h(pname(e.roller)) + ' rolled <b>' + rollText(e) + '</b>' + (e.doubles && e.sum > 0 ? ' <span style="color:var(--ink2)">doubles</span>' : '');
+      case 'bank': return '<b>' + h(pname(e.p)) + '</b> banked';
+      case 'join': return h(pname(e.p)) + ' joined <span style="color:var(--ink2)">with ' + e.score + '</span>';
+      case 'leave': return h(pname(e.p)) + ' sat out';
+      case 'rejoin': return h(pname(e.p)) + ' returned';
+      default: return h(pname(e.p)) + ' took the dice';
+    }
+  }
+  function editHTML() {
+    var g = S.game, rs = editRows(), rounds = [];
+    rs.forEach(function (r) { if (rounds.indexOf(r.round) < 0) rounds.push(r.round); });
+    rounds.sort(function (a, b) { return b - a; });
+    var out = head('Edit entries');
+    if (!rs.length) out += '<p class="sub" style="font-size:15px">Nothing to edit yet.</p>';
+    rounds.forEach(function (r) {
+      out += '<div class="lab" style="padding-top:4px">Round ' + r + (r === S.d.round ? ' \u00b7 current' : '') + '</div><div class="card" style="padding:0 6px">';
+      rs.filter(function (x) { return x.round === r; }).reverse().forEach(function (row) {
+        var e = g.log[row.id], potText = e.t === 'roll' ? (row.ended && row.pot === 0 ? 'bust' : row.pot) : e.t === 'bank' ? row.pot : '';
+        out += '<div class="lwrap"><button type="button" class="lrow' + (S.sel === row.id ? ' sel' : '') + '"' + attrs('sel', row.id) + ' id="log-' + row.id + '" aria-expanded="' + (S.sel === row.id) + '">' +
+          '<span class="rn big">' + (e.t === 'roll' ? 'R' + row.rollNo : '') + '</span><span class="ds">' + describe(e) + '</span><span class="pv big">' + potText + '</span></button>';
+        if (S.sel === row.id) {
+          out += '<div class="editor">';
+          if (e.t === 'roll') {
+            var small = function (n) { return btn('key', 'chg', n, String(n), 'aria-label="Change to ' + n + '"'); };
+            out += '<div class="lab">Change this roll to</div><div class="krow">' + [2, 3, 4, 5, 6].map(small).join('') + '</div><div class="krow">' + [7, 8, 9, 10, 11, 12].map(small).join('') + '</div>' +
+              btn('key alt', 'chgDbl', null, die(3, 14) + die(3, 14) + ' Doubles \u00d72', 'id="chg-doubles" aria-label="Change to doubles, pot doubles" style="font-size:18px"') +
+              '<p class="sub" style="font-size:12px">In the safe rolls, doubles count as their sum: pick the number above.</p>' +
+              '<div class="lab">Someone banked right after this roll</div><div class="flow">' +
+              roster().map(function (p) { return btn('ob', 'ins', p.id, h(p.name), 'aria-label="' + h(p.name) + ' banked after this roll"'); }).join('') + '</div>';
+          }
+          out += '<div>' + btn('ob danger', 'del', null, 'Delete this entry', 'id="delete-entry"') + '</div></div>';
+        }
+        out += '</div>';
+      });
+      out += '</div>';
+    });
+    return out + '<p class="sub">Edits re-score everything after them. Undo reverses the last action.</p>';
+  }
+  function standingsRows(st) {
+    return st.map(function (s) {
+      var first = s.rank === 1 && s.score > 0;
+      return '<div class="srow sm' + (first ? ' first' : '') + '"><span class="grow nowrap" style="font-weight:600">' + ord(s.rank) + ' \u00b7 ' + h(s.name) + (s.active ? '' : ' (out)') + '</span>' +
+        (s.rank > 1 ? '<span style="font-size:13px;font-weight:600;opacity:.8">' + MINUS + (st[0].score - s.score) + '</span>' : '') + '<span class="big" style="font-size:22px">' + s.score + '</span></div>';
+    }).join('');
+  }
+  function historyHTML() {
+    var g = S.game, d = S.d, st = C.standings(g, d), list = roster();
+    // cumulative totals after each finished round
+    var totals = d.results.map(function (_, i) { return C.replay(Object.assign({}, g, { log: g.log.filter(function (e, k) { return d.eventRounds[k] <= i + 1; }) })).scores; });
+    var out = head('History') + '<div class="sec" style="gap:6px" id="standings">' + standingsRows(st) + '</div>';
+    if (!d.results.length) return out + '<p class="sub" style="font-size:15px">No rounds finished yet.</p>';
+    out += '<div class="lab" style="padding-top:4px">Banked per round \u00b7 running total</div><div class="card tablewrap"><table class="hist"><thead><tr><th scope="col">Round</th>' +
+      list.map(function (p) { return '<th scope="col">' + h(p.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    d.results.forEach(function (r) {
+      out += '<tr><td><span class="big">' + r.round + '</span> <span class="rt">' + (r.how === 'bust' ? 'bust' : 'all') + '</span></td>' + list.map(function (p) {
+        var b = Object.prototype.hasOwnProperty.call(r.banks, p.id), t = totals[r.round - 1][p.id];
+        return '<td><div class="a' + (b ? '' : ' n') + '">' + (b ? '+' + r.banks[p.id] : r.lost.indexOf(p.id) >= 0 ? '\u2014' : '&nbsp;') + '</div><div class="rt">' + (t === undefined ? '' : t) + '</div></td>';
+      }).join('') + '</tr>';
+    });
+    out += '</tbody><tfoot><tr><td class="lab">Total</td>' + list.map(function (p) { return '<td class="big" style="font-size:18px">' + score(p.id) + '</td>'; }).join('') + '</tr></tfoot></table></div>';
+    return out;
+  }
+  function roundEndHTML(res) {
+    var g = S.game, d = S.d, st = C.standings(g, d), bust = res.how === 'bust';
+    var got = Object.keys(res.banks).map(function (k) { return [k, res.banks[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+    var out = '<div class="lab center" style="padding-top:18px">Round ' + res.round + '</div><h2 class="reh' + (bust ? ' bust' : '') + '" id="bank-sheet-title">' + (bust ? 'Bust' : 'All banked') + '</h2>' +
+      '<p class="center" style="font-size:15px;font-weight:600;color:var(--ink2)">' + (bust ? 'A 7 on roll ' + res.rolls + ' wiped the pot.' : 'Everyone banked after ' + res.rolls + ' roll' + (res.rolls === 1 ? '' : 's') + '.') + '</p><div class="sec" style="gap:6px">';
+    got.forEach(function (p) { out += '<div class="srow sm first"><span class="grow nowrap" style="font-weight:600">' + h(pname(p[0])) + '</span><span class="big" style="font-size:22px">+' + p[1] + '</span></div>'; });
+    res.lost.forEach(function (k) { out += '<div class="srow sm lost"><span class="grow nowrap" style="font-weight:600">' + h(pname(k)) + '</span><span class="big" style="font-size:22px">' + (bust ? 'lost' : '0') + '</span></div>'; });
+    out += '</div>';
+    if (!d.over && st.length) out += '<p class="center" style="font-size:14px;font-weight:600;color:var(--ink2)">' + h(st[0].name) + ' leads with ' + st[0].score + (st.length > 1 ? ' \u00b7 ' + h(st[1].name) + ' ' + MINUS + (st[0].score - st[1].score) : '') + '</p>';
+    out += btn('pb', 'next', null, d.over ? 'See final standings' : d.round === g.rounds ? 'Final round' : 'Round ' + d.round, 'id="next-round"') + btn('tb', 'undoRound', null, 'Undo that roll', 'id="undo-round"');
+    return out;
+  }
+
+  // ---------- render ----------
+  function applyTheme() {
+    var t = S.prefs.theme;
+    if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
+    else if (hostTheme === null) root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', hostTheme);
+  }
+  function focusKey(el) {
+    if (!el || !app.contains(el)) return null;
+    if (el.dataset.act) return '[data-act="' + el.dataset.act + '"]' + (el.dataset.arg !== undefined ? '[data-arg="' + String(el.dataset.arg).replace(/["\\]/g, '\\$&') + '"]' : ':not([data-arg])');
+    if (el.dataset.in) return '[data-in="' + el.dataset.in + '"]' + (el.dataset.arg !== undefined ? '[data-arg="' + el.dataset.arg + '"]' : '');
+    return null;
+  }
+  function fitPot() {
+    var el = document.getElementById('pot'); if (!el) return;
+    var sp = el.firstChild; el.style.fontSize = '';
+    var w = el.clientWidth, sw = sp.offsetWidth;
+    if (sw > w && w > 0) el.style.fontSize = Math.floor(parseFloat(getComputedStyle(el).fontSize) * w / sw * 0.98) + 'px';
+  }
+  function render(only) {
+    applyTheme();
+    var fk = focusKey(document.activeElement);
+    if (only !== 'sheet') {
+      var chips = screenEl.querySelector('.chips'), cs = chips ? chips.scrollTop : 0;
+      screenEl.innerHTML = S.screen === 'setup' || !S.game ? setupHTML() : S.screen === 'end' ? endHTML() : gameHTML();
+      chips = screenEl.querySelector('.chips'); if (chips) chips.scrollTop = cs;
+      S.lastPot = S.screen === 'game' && S.game ? S.d.pot : null;
+      fitPot();
+    }
+    if (only !== 'screen') {
+      var old = sheetEl.querySelector('.sheet'), oldKind = old ? old.dataset.kind : '', st = old ? old.scrollTop : 0;
+      sheetEl.innerHTML = sheetHTML();
+      var sh = sheetEl.querySelector('.sheet'), kind = sh ? sh.dataset.kind : '';
+      if (sh) screenEl.setAttribute('inert', ''); else screenEl.removeAttribute('inert');
+      if (sh && kind === oldKind) sh.scrollTop = st;
+      if (sh && kind !== oldKind) { sh.focus({ preventScroll: true }); fk = null; }
+    }
+    if (fk) { var t = app.querySelector(fk); if (t && t !== document.activeElement && !t.disabled) { try { t.focus({ preventScroll: true }); } catch (e) {} } }
+  }
+
+  // ---------- actions ----------
+  function rulesTarget() { return S.screen === 'setup' || !S.game ? S.setup.rules : C.Rules(S.game.rules); }
+  function rulesCommit(r) { if (S.screen === 'setup' || !S.game) S.setup.rules = r; else setRules(r); }
+  function closeSheet() { if (S.sheet) { S.sheet = null; S.sel = null; S.removing = null; } else if (S.pending) S.pending = null; }
+  function addFromSheet() {
+    if (!S.newName.trim()) { var n = document.getElementById('new-name'); if (n) n.focus(); return false; }
+    var sc = parseInt(S.newScore, 10);
+    addPlayer(S.newName, isNaN(sc) ? lowestScore() : sc);
+    S.newName = ''; S.newScore = String(lowestScore());
+    return true;
+  }
+  var A = {
+    // setup
+    addName: function () { S.setup.names.push(''); render(); focusName(S.setup.names.length - 1); return false; },
+    rmName: function (i) { if (S.setup.names.length > 1) S.setup.names.splice(+i, 1); },
+    recent: function (n) { var i = -1; S.setup.names.forEach(function (x, k) { if (i < 0 && !x.trim()) i = k; }); if (i >= 0) S.setup.names[i] = n; else S.setup.names.push(n); },
+    rounds: function (n) { S.setup.rounds = +n; },
+    roundsStep: function (dl) { S.setup.rounds = Math.max(1, Math.min(99, S.setup.rounds + +dl)); },
+    virt: function (v) { S.setup.virtualDice = v === '1'; },
+    toggleRules: function () { S.showRules = !S.showRules; },
+    safeStep: function (dl) { var r = rulesTarget(); r.safeRolls = Math.max(0, Math.min(6, r.safeRolls + +dl)); rulesCommit(r); },
+    tog7: function () { var r = rulesTarget(); r.sevenPays70 = !r.sevenPays70; rulesCommit(r); },
+    togDbl: function () { var r = rulesTarget(); r.safeDoublesDouble = !r.safeDoublesDouble; rulesCommit(r); },
+    theme: function (t) { S.prefs.theme = t; savePrefs(); },
+    start: function () { startGame(); },
+    // game
+    open: function (k) {
+      S.sel = null; S.removing = null;
+      if (k === 'players') { S.newName = ''; S.newScore = String(lowestScore()); }
+      S.sheet = { kind: k };
+    },
+    close: function () { closeSheet(); },
+    pass: function () { passDice(); },
+    chip: function (pid) { if (isBanked(pid)) S.sheet = { kind: 'unbank', pid: pid }; else bank(pid); },
+    undo: function () { undo(); },
+    redo: function () { redo(); },
+    key: function (n) { enterRoll(+n, false); },
+    dbl: function () { enterRoll(0, true); },
+    vroll: function () { virtualRoll(); return false; },
+    final: function () { finish(); },
+    // sheets
+    toggleSound: function () { S.prefs.sound = !S.prefs.sound; savePrefs(); if (S.prefs.sound) FX.play('bank'); },
+    cycleTheme: function () { var o = ['system', 'light', 'dark']; S.prefs.theme = o[(o.indexOf(S.prefs.theme) + 1) % 3]; savePrefs(); },
+    doEnd: function () { finish(); },
+    doNew: function () { toSetup(); },
+    doUnbank: function () { var pid = S.sheet.pid; S.sheet = null; unbank(pid); },
+    gRoundsStep: function (dl) { setRounds(S.game.rounds + +dl); },
+    gVirt: function (v) { setVirtual(v === '1'); },
+    up: function (pid) { move(pid, -1); },
+    down: function (pid) { move(pid, 1); },
+    sit: function (pid) { act(S.d.active.has(pid) ? E.leave(pid) : E.rejoin(pid)); },
+    rmAsk: function (pid) { S.removing = pid; },
+    rmCancel: function () { S.removing = null; },
+    rmDo: function (pid) { S.removing = null; removePlayer(pid); },
+    addPlayer: function () { return addFromSheet(); },
+    sel: function (i) { S.sel = S.sel === +i ? null : +i; },
+    chg: function (n) { replaceRoll(S.sel, +n, false); S.sel = null; S.sheet = null; },
+    chgDbl: function () { replaceRoll(S.sel, 0, true); S.sel = null; S.sheet = null; },
+    ins: function (pid) { insertBank(S.sel, pid); S.sel = null; S.sheet = null; },
+    del: function () { deleteEvent(S.sel); S.sel = null; S.sheet = null; },
+    next: function () { S.pending = null; if (S.d.over) finish(); },
+    undoRound: function () { S.pending = null; undo(); },
+    // end
+    again: function () { newSetup(S.game); S.game = null; startGame(); },
+    backSetup: function () { toSetup(); }
+  };
+  function focusName(i) { var el = app.querySelector('[data-in="name"][data-arg="' + i + '"]'); if (el) el.focus(); }
+
+  app.addEventListener('click', function (ev) {
+    var el = ev.target.closest ? ev.target.closest('[data-act]') : null;
+    if (!el || !app.contains(el)) {
+      if (ev.target.dataset && ev.target.dataset.overlay) { closeSheet(); render(); }
+      return;
+    }
+    if (el.disabled) return;
+    var fn = A[el.dataset.act]; if (!fn) return;
+    if (fn(el.dataset.arg) !== false) render();
+  });
+  app.addEventListener('input', function (ev) {
+    var el = ev.target, k = el.dataset ? el.dataset.in : null; if (!k) return;
+    if (k === 'name') {
+      S.setup.names[+el.dataset.arg] = el.value;
+      var st = document.getElementById('start'); if (st) st.disabled = !setupNames().length;
+    } else if (k === 'rename') { rename(el.dataset.arg, el.value); render('screen'); }
+    else if (k === 'newName') S.newName = el.value;
+    else if (k === 'newScore') { el.value = el.value.replace(/[^0-9-]/g, ''); S.newScore = el.value; }
+  });
+  var pendingOne = 0;
+  document.addEventListener('keydown', function (ev) {
+    var t = ev.target, inField = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+    if (ev.key === 'Escape' && (S.sheet || S.pending)) { closeSheet(); render(); ev.preventDefault(); return; }
+    if (ev.key === 'Enter' && inField && t.dataset && t.dataset.in) {
+      if (t.dataset.in === 'name') {
+        var i = +t.dataset.arg;
+        if (i === S.setup.names.length - 1) { if (!t.value.trim()) { if (setupNames().length) { startGame(); render(); } return; } S.setup.names.push(''); render(); }
+        focusName(i + 1);
+      } else if (t.dataset.in === 'newName' || t.dataset.in === 'newScore') { if (addFromSheet()) { render(); var n = document.getElementById('new-name'); if (n) n.focus(); } }
+      else t.blur();
+      ev.preventDefault(); return;
+    }
+    if (inField || ev.ctrlKey && ev.key !== 'z' || ev.metaKey && ev.key !== 'z' || ev.altKey) return;
+    if (S.screen !== 'game' || !S.game || S.sheet || S.pending) return;
+    var k = ev.key.toLowerCase(), done = true;
+    if (k === 'u' || k === 'z') { undo(); }
+    else if (S.d.over) done = false;
+    else if (S.game.virtualDice) { if (k === 'r') { virtualRoll(); ev.preventDefault(); return; } done = false; }
+    else if (pendingOne && Date.now() - pendingOne < 1200 && (k === '0' || k === '1' || k === '2')) { pendingOne = 0; enterRoll(10 + +k, false); }
+    else if (k === '1') { pendingOne = Date.now(); ev.preventDefault(); return; }
+    else if (k >= '2' && k <= '9' && k.length === 1) { pendingOne = 0; enterRoll(+k, false); }
+    else if (k === 'd') { var dk = document.getElementById('key-doubles'); if (dk && !dk.disabled) enterRoll(0, true); }
+    else done = false;
+    if (done) { ev.preventDefault(); render(); }
+  });
+  window.addEventListener('resize', fitPot);
+  render();
+})();
+</script>
+</body>
+</html>

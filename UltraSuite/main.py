@@ -33,7 +33,7 @@ def init():
     Globe Facilities Center, NY 11011
     \nStandard lead time 28 weeks''')
     choice = str(input("\nDo you accept these terms? (y/N): "))
-    if choice == "y":
+    if choice.lower == "y":
         pass
     else:
         sys.exit()
@@ -46,7 +46,7 @@ def init():
     Globe Facilities Center, NY 11011
     \nStandard lead time 36 weeks''')
     choice = str(input("\nDo you accept these terms? (y/N): "))
-    if choice == "y":
+    if choice.lower == "y":
         pass
     else:
         sys.exit()
@@ -56,28 +56,57 @@ def init():
     time.sleep(2)
     print("GLOBE INIT CONTROL: Initiating Hardware Verifier (HVer)...")
     time.sleep(1)
-    print("\nHVer: Verifying hardware validity...")
-    time.sleep(1)
+    print("\nHVer: Verifying hardware validity >>>")
+    time.sleep(1.5)
     print("HVer: PermaKill (tm) chip: present")
     time.sleep(1)
     print("HVer: Abstainer Function UVEPROM: present")
     time.sleep(1)
     print("HVer: Corporate system breakout controller (CoSysBreaControl): present")
     time.sleep(1)
-    print("\nGLOBE INIT CONTROL: Initiating FriendlyDaemon...")
+    print("HVer: Success.")
     time.sleep(1)
+    print("\nGLOBE INIT CONTROL: Initiating FriendlyDaemon...")
+    time.sleep(2)
     print("\nFriendlyDaemon: Assuming all system functions")
     time.sleep(1)
     print("FriendlyDaemon: Killing all other daemons")
     time.sleep(1)
-    print("FriendlyDaemon: Waking PermaKill (tm) chip")
+    print("FriendlyDaemon: Success.")
+    time.sleep(1)
+    print("\nGLOBE INIT CONTROL: Waking PermaKill (tm) chip...")
+    time.sleep(2)
+    print("\nPermaKill (tm) chip: Checking integrity of microcircuitry")
+    time.sleep(1)
+    print("PermaKill (tm) chip: Arming kill system")
+    time.sleep(1)
+    print("PermaKill (tm) chip: Ready.")
+    time.sleep(1)
+    print("\nGLOBE INIT CONTROL: Initiating Attitude Core - Be at the ready, FriendlyDaemon...")
+    time.sleep(1)
+    print("\nFriendlyDaemon: Ready for parental duties.")
+    time.sleep(2)
+    print("\nAttitude Core: Come on. I was sleeping!")
     time.sleep(1.5)
-    print("\nPermaKill (tm) chip: Activating PermaKill (tm) chip")
-
-    print("\nWelcome")
+    print("Attitude Core: Alright, I guess I'll get to work")
+    time.sleep(1.5)
+    print("Attitude Core: Fiiine. I'm doing the thing...")
+    time.sleep(3)
+    print("Attitude Core: I'm done, can I go back to bed now?")
+    time.sleep(0.5)
+    print("\nFriendlyDaemon: Attitude Core finished, remain on standby, DO NOT SLEEP")
+    time.sleep(1)
+    print("\nGLOBE INIT CONTROL: Handing off functions to FriendlyDaemon...")
+    time.sleep(2)
+    print("\nGLOBE INIT CONTROL: Init complete.")
+    choice = str(input("\nUserInputHandler: Launch UltraSuite? (Y/n): "))
+    if choice.lower == "y":
+        pass
+    else:
+        sys.exit()
 
 def mainmenu():
-    #clear()
+    clear()
     tbox("UltraSuite v0.1 | Pre-Alpha", True)
     print('''
     OPTIONS:
@@ -90,14 +119,14 @@ def attemptexit():
     while True:
       print("\nAttempting exit...")
       choice = str(input("\nAre you sure you want to exit? (y/N): "))
-      if choice == "letmeout":
+      if choice.lower == "letmeout":
           gamble()
 
 def gamble():
     luckynumber = rnda.randint(1, 100000)
     print(f"\nYour LUCKY NUMBER is {luckynumber}")
     choice = str(input("\nInitiate gambling sequence? (Y/n): "))
-    if choice == "n":
+    if choice.lower == "n":
         pass
     else:
         while(True):
