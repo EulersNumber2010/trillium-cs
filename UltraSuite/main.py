@@ -20,7 +20,12 @@ def init():
     print('''READ THE FOLLOWING TEXT CAREFULLY:
     \nThis is Ultra-Proprietary software. ANY attempt to use this software without a proper authorization will result in IMMEDIATE TERMINATION regardless of age, fault, and/or relationships to GLOBE CORP.''')
     choice = str(input("Do you accept these terms? (y/N): "))
-    if choice == "y":
+    if choice.lower() == "y":
+        pass
+    elif choice.lower() in ("devbypass", "dbp"):
+        return
+    elif choice.lower() in ("devconsole, dcn"):
+        #devconsole()
         pass
     else:
         sys.exit()
@@ -33,8 +38,10 @@ def init():
     Globe Facilities Center, NY 11011
     \nStandard lead time 28 weeks''')
     choice = str(input("\nDo you accept these terms? (y/N): "))
-    if choice.lower == "y":
+    if choice.lower() == "y":
         pass
+    elif choice.lower() in ("devbypass", "dbp"):
+        return
     else:
         sys.exit()
 
@@ -46,8 +53,10 @@ def init():
     Globe Facilities Center, NY 11011
     \nStandard lead time 36 weeks''')
     choice = str(input("\nDo you accept these terms? (y/N): "))
-    if choice.lower == "y":
+    if choice.lower() in ("devbypass", "dbp"):
         pass
+    elif choice.lower() == "devbypass" or "dbp":
+        return
     else:
         sys.exit()
 
@@ -100,10 +109,14 @@ def init():
     time.sleep(2)
     print("\nGLOBE INIT CONTROL: Init complete.")
     choice = str(input("\nUserInputHandler: Launch UltraSuite? (Y/n): "))
-    if choice.lower == "y":
+    if choice.lower() == "y":
         pass
     else:
         sys.exit()
+
+def devconsole():
+    clear()
+    tbox("UltraSuite Developer Console | NOT FOR USE", True)
 
 def mainmenu():
     clear()
@@ -113,20 +126,54 @@ def mainmenu():
     --------
     L | LOCKDOWN
     H | HELP
+    C | CALCULATOR
+    S | SOP TOOL
+    I | DAILY INSTRUCTIONS
+    X | EXIT
     ''')
+    choice = str(input("\nSelect an option: "))
+    if choice.lower() == "l":
+        #lockdown()
+        pass
+    elif choice.lower() == "h":
+        #help()
+        pass
+    elif choice.lower() == "c":
+        #calc()
+        pass
+    elif choice.lower() == "s":
+        #gensop()
+        pass
+    elif choice.lower() == "i":
+        tasklist()
+        pass
+    elif choice.lower() == "x":
+        attemptexit()
+
+def tasklist():
+    nTasks = 5
+    actions = ["Clean", "Edit", "Revise", "Publish", "Proofread", "Report", "Record", "Compose", "Recycle", "Acquire", "Write", "Purchase", "Supervise", "Inspect", "Commission", "Develop", "Brainstorm", "Collaborate on", "Dispose of", "File", "Audit", "Review", "Read", "Redact", "Process"]
+    items = ["the TPS reports", "The [REDACTED] file", "the reports", "the office supplies", "the calendar", "the meeting agenda", "the boardroom", "the office", "the motor pool", "the building", "your desk", "your cubicle",]
+    clear()
+    print(f"Welcome back, [USER]\nYou have {nTasks} tasks left today.")
+    for i in range(1, nTasks + 1):
+        print(f"{rnda.choice(actions)}" + " " + f"{rnda.choice(items)}")
 
 def attemptexit():
     while True:
-      print("\nAttempting exit...")
-      choice = str(input("\nAre you sure you want to exit? (y/N): "))
-      if choice.lower == "letmeout":
-          gamble()
+        print("\nAttempting exit...")
+        choice = str(input("\nAre you sure you want to exit? (y/N): "))
+        if choice.lower() in ("yes", "letmeout"):
+            gamble()
+        elif choice.lower() in ("devbypass", "dbp"):
+            return
+    
 
 def gamble():
     luckynumber = rnda.randint(1, 100000)
     print(f"\nYour LUCKY NUMBER is {luckynumber}")
     choice = str(input("\nInitiate gambling sequence? (Y/n): "))
-    if choice.lower == "n":
+    if choice.lower() == "n":
         pass
     else:
         while(True):
@@ -141,8 +188,6 @@ def gamble():
 def run():
     init()
     mainmenu()
-
-    attemptexit()
 
 if __name__ == "__main__":
     size = os.get_terminal_size()
