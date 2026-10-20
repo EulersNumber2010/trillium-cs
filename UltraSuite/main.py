@@ -16,6 +16,7 @@ def tbox(text, padded=False):
     print("+" + "-"*(len(text)+(2 if padded else 0)) + "+")
 
 def init():
+    devbypassaction = initdialogue
     clear()
     print('''READ THE FOLLOWING TEXT CAREFULLY:
     \nThis is Ultra-Proprietary software. ANY attempt to use this software without a proper authorization will result in IMMEDIATE TERMINATION regardless of age, fault, and/or relationships to GLOBE CORP.''')
@@ -23,7 +24,7 @@ def init():
     if choice.lower() == "y":
         pass
     elif choice.lower() in ("devbypass", "dbp"):
-        return
+        devbypassaction()
     elif choice.lower() in ("devconsole, dcn"):
         #devconsole()
         pass
@@ -41,7 +42,7 @@ def init():
     if choice.lower() == "y":
         pass
     elif choice.lower() in ("devbypass", "dbp"):
-        return
+        devbypassaction()
     else:
         sys.exit()
 
@@ -54,63 +55,71 @@ def init():
     \nStandard lead time 36 weeks''')
     choice = str(input("\nDo you accept these terms? (y/N): "))
     if choice.lower() in ("devbypass", "dbp"):
-        pass
+        devbypassaction()
     elif choice.lower() == "devbypass" or "dbp":
-        return
+        initdialogue()
     else:
         sys.exit()
 
+def initdialogue():
     clear()
+    choice = str(input("Type in a string to continue (this will be recorded): "))
+    if choice == "hurryup":
+        modifier = 0.01
+        tbox("TURBO MODE!!!", True)
+    else:
+        modifier = 1
+
     print("Preparing...")
-    time.sleep(2)
+    time.sleep(2*modifier)
     print("GLOBE INIT CONTROL: Initiating Hardware Verifier (HVer)...")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("\nHVer: Verifying hardware validity >>>")
-    time.sleep(1.5)
+    time.sleep(1.5*modifier)
     print("HVer: PermaKill (tm) chip: present")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("HVer: Abstainer Function UVEPROM: present")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("HVer: Corporate system breakout controller (CoSysBreaControl): present")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("HVer: Success.")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("\nGLOBE INIT CONTROL: Initiating FriendlyDaemon...")
-    time.sleep(2)
+    time.sleep(2*modifier)
     print("\nFriendlyDaemon: Assuming all system functions")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("FriendlyDaemon: Killing all other daemons")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("FriendlyDaemon: Success.")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("\nGLOBE INIT CONTROL: Waking PermaKill (tm) chip...")
-    time.sleep(2)
+    time.sleep(2*modifier)
     print("\nPermaKill (tm) chip: Checking integrity of microcircuitry")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("PermaKill (tm) chip: Arming kill system")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("PermaKill (tm) chip: Ready.")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("\nGLOBE INIT CONTROL: Initiating Attitude Core - Be at the ready, FriendlyDaemon...")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("\nFriendlyDaemon: Ready for parental duties.")
-    time.sleep(2)
+    time.sleep(2*modifier)
     print("\nAttitude Core: Come on. I was sleeping!")
-    time.sleep(1.5)
+    time.sleep(1.5*modifier)
     print("Attitude Core: Alright, I guess I'll get to work")
-    time.sleep(1.5)
+    time.sleep(1.5*modifier)
     print("Attitude Core: Fiiine. I'm doing the thing...")
-    time.sleep(3)
+    time.sleep(3*modifier)
     print("Attitude Core: I'm done, can I go back to bed now?")
-    time.sleep(0.5)
+    time.sleep(0.5*modifier)
     print("\nFriendlyDaemon: Attitude Core finished, remain on standby, DO NOT SLEEP")
-    time.sleep(1)
+    time.sleep(1*modifier)
     print("\nGLOBE INIT CONTROL: Handing off functions to FriendlyDaemon...")
-    time.sleep(2)
+    time.sleep(2*modifier)
     print("\nGLOBE INIT CONTROL: Init complete.")
     choice = str(input("\nUserInputHandler: Launch UltraSuite? (Y/n): "))
     if choice.lower() == "y":
-        pass
+        mainmenu()
     else:
         sys.exit()
 
@@ -186,8 +195,8 @@ def gamble():
                 print(f"{luck}" + "\nREROLL")
 
 def run():
-    init()
-    mainmenu()
+    #init()
+    tasklist()
 
 if __name__ == "__main__":
     size = os.get_terminal_size()
