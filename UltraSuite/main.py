@@ -15,6 +15,10 @@ def tbox(text, padded=False):
     print(("| " if padded else "|") + text + (" |" if padded else "|"))
     print("+" + "-"*(len(text)+(2 if padded else 0)) + "+")
 
+def getinput(message: str, matchcase= False):
+    global choice
+    choice = str(input(message)).lower() if matchcase else str(input(message)).lower()
+
 def init():
     devbypassaction = initdialogue
     clear()
@@ -63,7 +67,7 @@ def init():
 
 def initdialogue():
     clear()
-    choice = str(input("Type in a string to continue (this will be recorded): "))
+    getinput("Type in a string to continue (this will be recorded): ")
     if choice == "hurryup":
         modifier = 0.01
         tbox("TURBO MODE!!!", True)
@@ -117,8 +121,8 @@ def initdialogue():
     print("\nGLOBE INIT CONTROL: Handing off functions to FriendlyDaemon...")
     time.sleep(2*modifier)
     print("\nGLOBE INIT CONTROL: Init complete.")
-    choice = str(input("\nUserInputHandler: Launch UltraSuite? (Y/n): "))
-    if choice.lower() == "y":
+    getinput("\nUserInputHandler: Launch UltraSuite? (Y/n): ")
+    if choice == "y":
         mainmenu()
     else:
         sys.exit()
@@ -140,33 +144,51 @@ def mainmenu():
     I | DAILY INSTRUCTIONS
     X | EXIT
     ''')
-    choice = str(input("\nSelect an option: "))
-    if choice.lower() == "l":
+    getinput("\nSelect an option: ")
+    if choice == "l":
         #lockdown()
         pass
-    elif choice.lower() == "h":
+    elif choice == "h":
         #help()
         pass
-    elif choice.lower() == "c":
+    elif choice == "c":
         #calc()
         pass
-    elif choice.lower() == "s":
+    elif choice == "s":
         #gensop()
         pass
-    elif choice.lower() == "i":
-        tasklist()
+    elif choice == "i":
+        tasklistuser()
         pass
-    elif choice.lower() == "x":
+    elif choice == "x":
         attemptexit()
 
 def tasklist():
-    nTasks = 5
+    nTasks = 20
     actions = ["Clean", "Edit", "Revise", "Publish", "Proofread", "Report", "Record", "Compose", "Recycle", "Acquire", "Write", "Purchase", "Supervise", "Inspect", "Commission", "Develop", "Brainstorm", "Collaborate on", "Dispose of", "File", "Audit", "Review", "Read", "Redact", "Process"]
     items = ["the TPS reports", "The [REDACTED] file", "the reports", "the office supplies", "the calendar", "the meeting agenda", "the boardroom", "the office", "the motor pool", "the building", "your desk", "your cubicle",]
     clear()
     print(f"Welcome back, [USER]\nYou have {nTasks} tasks left today.")
     for i in range(1, nTasks + 1):
         print(f"{rnda.choice(actions)}" + " " + f"{rnda.choice(items)}")
+
+def tasklistuser():
+    tasklist()
+    while True:
+        getinput("\n[R]egenerate, [E]xit, [P]anic: ")
+        if choice == "r":
+            tasklist()
+        elif choice == "e":
+            mainmenu()
+        elif choice == "p":
+            # panic() TODO
+            continue
+        else:
+            print("Invalid input, please retry\n")
+            continue
+        
+
+
 
 def attemptexit():
     while True:
@@ -195,8 +217,7 @@ def gamble():
                 print(f"{luck}" + "\nREROLL")
 
 def run():
-    #init()
-    tasklist()
+    init()
 
 if __name__ == "__main__":
     size = os.get_terminal_size()
