@@ -165,8 +165,10 @@ def mainmenu():
 
 def tasklist():
     nTasks = 20
-    actions = ["Clean", "Edit", "Revise", "Publish", "Proofread", "Report", "Record", "Compose", "Recycle", "Acquire", "Write", "Purchase", "Supervise", "Inspect", "Commission", "Develop", "Brainstorm", "Collaborate on", "Dispose of", "File", "Audit", "Review", "Read", "Redact", "Process"]
-    items = ["the TPS reports", "The [REDACTED] file", "the reports", "the office supplies", "the calendar", "the meeting agenda", "the boardroom", "the office", "the motor pool", "the building", "your desk", "your cubicle",]
+    actions = ["Clean", "Edit", "Revise", "Publish", "Proofread", "Report", "Record", "Compose", "Recycle", "Acquire", "Write", "Purchase", "Supervise", "Inspect", "Commission", "Develop", "Brainstorm", "Collaborate on", "Dispose of", "File", "Audit", "Review", "Read", "Redact", "Process", "Analyze", "Organize", "Summarize", "Distribute", "Update", "Verify", "Research", "Plan", "Schedule", "Coordinate", "Prepare", "Assemble", "Design", "Implement", "Evaluate"]
+    #Process and after are inline suggestions
+    items = ["the TPS reports", "The [REDACTED] file", "the reports", "the office supplies", "the calendar", "the meeting agenda", "the boardroom", "the office", "the motor pool", "the building", "your desk", "your cubicle", "the conference room", "the break room", "the cafeteria", "the parking lot", "the lobby", "the mailroom", "the server room", "the IT department", "the HR department", "the finance department", "the legal department", "the marketing department", "the sales department", "the operations department", "the executive suite", "the janitorial closet", "the supply closet", "the storage room"]
+    #The Conference Room and after are inline suggestions
     clear()
     print(f"Welcome back, [USER]\nYou have {nTasks} tasks left today.")
     for i in range(1, nTasks + 1):
