@@ -11,6 +11,6 @@ def vocab_parser(dir):
 
 voice = "Standard Voice"
 
-vocab = vocab_parser(f"./defect-detector/Vocabulary/{voice}")
+Vocabulary = vocab_parser(f"./defect-detector/Vocabulary/{voice}")
 for item in vocab:
     print(item + "|" + vocab[item])

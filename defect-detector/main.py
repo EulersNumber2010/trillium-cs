@@ -1,5 +1,6 @@
 import wave
-from 
+from vocab import Vocabulary
 
-with open("instructions.toml", "rb") as f:
-    instructions = tomllib.load(f)
+with open("script.txt", "r") as script:
+    for line in script:
+        
