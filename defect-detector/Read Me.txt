@@ -1,0 +1,15 @@
+Thank you for downloading the Harmon audio kit. This kit contains a collection of .wav audio files to make your own custom defect detector messages for a model railroad or a train simulator.
+
+The Standard Voice, Alternate Voice, and SP Katherine Reynolds Voice all come from Kevin Novak, who meticulously recorded these from defect detectors in his private collection. The alarm tone was provided by Don Narris.
+
+The CSX Voice are an agglomeration of clips from DefectDetector.net edited by Nick O'Dell into a single cohesive voice. While not directly recorded as with our other kits, we felt the quality was sufficiently good to include in this kit.
+
+The SP kit was recorded from a Harmon Model 46, a simplistic model that did not count axles or detect hotboxes, hence the abbreviated results messages and no locations provided when defects are located. The 'Uhh' message is transmitted when a hardware problem exists in the main processor.
+
+Sample audio recordings provided courtesy of C. Vision Productions, Joey Gonciarz, Kevin Novak, P71RailfanVideoMedia, Scott Thomas, Steven Reynolds, Thom McAdams, and TotalCSX.
+
+If you intend to make custom defect detector messages for distribution, we do ask that you please note that the audio was created from this audio kit and is not representative of an actual recorded radio transmission.
+
+The contents of this .zip archive may be used in accordance with Creative Commons CC BY-NC 4.0 license (https://creativecommons.org/licenses/by-nc/4.0/). For non-commercial uses, all we ask is that proper credit is given to DefectDetector.net. If you wish to use this content for commercial purposes, please contact us to discuss first.
+
+©2024 DefectDetector.net or its affiliates. All rights reserved.
